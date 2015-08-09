@@ -1,0 +1,36 @@
+{
+  "name": "floox",
+  "version": "1.0.0",
+  "main": "floox.js",
+  "description": "A nice framework for Flux",
+  "keywords": [
+    "flux",
+    "store",
+    "actions"
+  ],
+  "homepage": "https://github.com/fatfisz/floox",
+  "repository": "https://github.com/fatfisz/floox.git",
+  "author": {
+    "name": "FatFisz",
+    "url": "https://github.com/fatfisz"
+  },
+  "license": "MIT",
+  "scripts": {
+    "test": "grunt"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-eslint": "^16.0.0",
+    "grunt-mocha-test": "^0.12.7",
+    "load-grunt-tasks": "^3.2.0",
+    "mocha": "^2.2.5",
+    "node-jsdom": "^3.1.5",
+    "react": "^0.13.3",
+    "should": "^7.0.2"
+  },
+  "dependencies": {
+    "flux": "^2.0.3",
+    "ns-props": "^1.0.0",
+    "object-assign": "^3.0.0"
+  }
+}
