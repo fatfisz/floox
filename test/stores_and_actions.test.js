@@ -85,11 +85,12 @@ describe('Stores', function () {
   describe('creating stores and actions', function () {
 
     it('should create a store and set up the right properties', function () {
-      floox.createStore('myStore', myStore);
+      var createStoreResult = floox.createStore('myStore', myStore);
 
       var addedStore = floox.stores.myStore;
 
-      addedStore.should.be.equal(myStore);
+      should(createStoreResult).be.equal(myStore);
+      should(addedStore).be.equal(myStore);
 
       shouldBeAStore(addedStore);
 
@@ -134,9 +135,13 @@ describe('Stores', function () {
       otherMyActionCallback = test;
       namespacedMyActionCallback = shouldNotBeCalled;
 
-      floox.createAction('the.action', function (dispatcherActions, data) {
+      function action(dispatcherActions, data) {
         dispatcherActions.myAction(data);
-      });
+      }
+
+      var createActionResult = floox.createAction('the.action', action);
+
+      should(createActionResult).be.equal(action);
 
       floox.actions.the.action(testData);
     });
