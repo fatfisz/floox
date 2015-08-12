@@ -1,6 +1,6 @@
 {
   "name": "floox",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "floox.js",
   "description": "A nice framework for Flux",
   "keywords": [
