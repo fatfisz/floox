@@ -414,4 +414,47 @@ describe('Mixin', function () {
     shouldHaveCorrectState();
   });
 
+  it('should handle the "storeStateWillUpdate" method', function () {
+    function shouldHaveCorrectState() {
+      should.deepEqual(renderedComponent.state, {
+        test: floox.stores.myStore.data() * 2,
+        stores: {
+          myStore: {
+            data: floox.stores.myStore.data(),
+          },
+        },
+      });
+    }
+
+    var MyComponent = React.createClass({
+
+      displayName: 'MyComponent',
+
+      mixins: [StateFromStoreMixin],
+
+      getStoreStateMapping: function () {
+        return {
+          myStore: ['data'],
+        };
+      },
+
+      storeStateWillUpdate: function (partialNextState) {
+        partialNextState.test = partialNextState.stores.myStore.data * 2;
+      },
+
+      render: function () {
+        return null;
+      },
+
+    });
+
+    var element = React.createElement(MyComponent);
+    var renderedComponent = React.addons.TestUtils.renderIntoDocument(element);
+
+    shouldHaveCorrectState();
+
+    floox.actions.myAction();
+    shouldHaveCorrectState();
+  });
+
 });
