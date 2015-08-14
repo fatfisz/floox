@@ -329,6 +329,17 @@ Only the data from the store which has emitted the `'change'` event is retrieved
 
 **Remember to emit the `'change'` event if any data in the store has changed.**
 
+#### component.storeStateWillUpdate(partialNextState, previousState, currentProps)
+
+If this method is defined in a component, it will fire after retrieving data from the stores on change, and before calling `setState`.
+It allows making changes to the state based on the data from stores.
+
+The first argument is an object containing the `stores` property with the data already updated.
+
+The second and third arguments are the arguments that are passed to the `setState` callback (see: [setState](https://facebook.github.io/react/docs/component-api.html#setstate)).
+
+**The method is not called when initializing the component, only on subsequent updates.**
+
 #### Batched updates
 
 Use `React.addons.batchedUpdates` when you want to ensure that updates caused by handling an action will be batched so that minimal number of re-renders will occur.

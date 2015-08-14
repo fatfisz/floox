@@ -415,16 +415,7 @@ describe('Mixin', function () {
   });
 
   it('should handle the "storeStateWillUpdate" method', function () {
-    function shouldHaveCorrectState() {
-      should.deepEqual(renderedComponent.state, {
-        test: floox.stores.myStore.data() * 2,
-        stores: {
-          myStore: {
-            data: floox.stores.myStore.data(),
-          },
-        },
-      });
-    }
+    var oldData = floox.stores.myStore.data();
 
     var MyComponent = React.createClass({
 
@@ -438,7 +429,17 @@ describe('Mixin', function () {
         };
       },
 
-      storeStateWillUpdate: function (partialNextState) {
+      storeStateWillUpdate: function (partialNextState, previousState, currentProps) {
+        should.deepEqual(previousState, {
+          stores: {
+            myStore: {
+              data: oldData,
+            },
+          },
+        });
+
+        should.deepEqual(currentProps, { prop: 'value' });
+
         partialNextState.test = partialNextState.stores.myStore.data * 2;
       },
 
@@ -448,13 +449,27 @@ describe('Mixin', function () {
 
     });
 
-    var element = React.createElement(MyComponent);
+    var element = React.createElement(MyComponent, { prop: 'value' });
     var renderedComponent = React.addons.TestUtils.renderIntoDocument(element);
 
-    shouldHaveCorrectState();
+    should.deepEqual(renderedComponent.state, {
+      stores: {
+        myStore: {
+          data: oldData,
+        },
+      },
+    });
 
     floox.actions.myAction();
-    shouldHaveCorrectState();
+
+    should.deepEqual(renderedComponent.state, {
+      test: floox.stores.myStore.data() * 2,
+      stores: {
+        myStore: {
+          data: floox.stores.myStore.data(),
+        },
+      },
+    });
   });
 
 });
