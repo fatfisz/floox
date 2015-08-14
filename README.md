@@ -9,6 +9,11 @@ Install the package with this command:
 npm install floox --save
 ```
 
+## For those coming from flux-store-base
+
+Check out the [migration guide](https://github.com/fatfisz/floox/blob/master/docs/migrating.md) for instructions on how to migrate.
+The guide was made based on personal experience, so if you have something you feel could help others, don't hesitate to create a PR with some additional migration tips.
+
 ## Glossary
 
 * production env - means an environment in which environment variable `NODE_ENV` is set to `production`
