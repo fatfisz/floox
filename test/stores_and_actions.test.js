@@ -173,6 +173,20 @@ describe('Stores', function () {
       });
     });
 
+    it('shouldn\'t overwrite an action creator with an action dispatcher created with a store', function () {
+      floox.createAction('doNotOverwrite', function () {});
+
+      var theRightHandler = floox.actions.doNotOverwrite;
+
+      floox.createStore('OverwritingStore', {
+        handlers: {
+          doNotOverwrite: function () {},
+        },
+      });
+
+      floox.actions.doNotOverwrite.should.be.equal(theRightHandler);
+    });
+
     it('should throw if there are two handlers with the same name', function () {
       should.throws(function () {
         floox.createStore('error', {
