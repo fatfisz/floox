@@ -113,6 +113,28 @@ For more info on the mixin, look [in the API section](#flooxstatefromstoremixin)
 
 ## More advanced concepts
 
+### Including the stores and custom actions
+
+If you keep your stores and actions in separate files, then you need to include them before using them.
+The most painless way to do that is to use both [bulk-require](https://github.com/substack/bulk-require) and [bulkify](https://github.com/substack/bulkify).
+
+Create a file that will look something like this:
+
+```js
+'use strict';
+
+var bulk = require('bulk-require');
+
+
+bulk(__dirname, ['actions/*.js', 'stores/*.js']);
+```
+
+Then require this file once, at the entry point of your application.
+This ensures all files kept in the "actions" and "stores" directories will be required and executed.
+
+`bulkify` is a transform for `browserify`, that you can use with a build system of your preference.
+It will substitute the `bulk` call with an object containing the `require`-s.
+
 ### Factory
 
 If your project needs multiple dispatchers, you can use the floox factory, like so:
