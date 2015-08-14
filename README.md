@@ -332,11 +332,14 @@ Only the data from the store which has emitted the `'change'` event is retrieved
 #### component.storeStateWillUpdate(partialNextState, previousState, currentProps)
 
 If this method is defined in a component, it will fire after retrieving data from the stores on change, and before calling `setState`.
-It allows making changes to the state based on the data from stores.
+It allows making changes to the state based on the data from stores by changing the `partialNextState` object.
 
 The first argument is an object containing the `stores` property with the data already updated.
 
 The second and third arguments are the arguments that are passed to the `setState` callback (see: [setState](https://facebook.github.io/react/docs/component-api.html#setstate)).
+
+Any value returned by this method will be ignored.
+Only modify the `partialNextState` object.
 
 **The method is not called when initializing the component, only on subsequent updates.**
 
