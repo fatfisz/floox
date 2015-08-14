@@ -187,6 +187,51 @@ describe('Stores', function () {
       floox.actions.doNotOverwrite.should.be.equal(theRightHandler);
     });
 
+    it('shouldn\'t allow creating two actions with the same name (before store creation)', function () {
+      floox.createAction('duplicateActionBefore', shouldNotBeCalled);
+
+      should.throws(function () {
+        floox.createAction('duplicateActionBefore', shouldNotBeCalled);
+      }, function (err) {
+        should(err.message).be.equal('Action "duplicateActionBefore" is already registered');
+        return true;
+      });
+    });
+
+    it('shouldn\'t allow creating two actions with the same name (store creation in between)', function () {
+      floox.createAction('duplicateActionBetween', shouldNotBeCalled);
+
+      floox.createStore('duplicateActionStoreBetween', {
+        handlers: {
+          duplicateActionBetween: function () {},
+        },
+      });
+
+      should.throws(function () {
+        floox.createAction('duplicateActionBetween', shouldNotBeCalled);
+      }, function (err) {
+        should(err.message).be.equal('Action "duplicateActionBetween" is already registered');
+        return true;
+      });
+    });
+
+    it('shouldn\'t allow creating two actions with the same name (after store creation)', function () {
+      floox.createStore('duplicateActionStoreAfter', {
+        handlers: {
+          duplicateActionAfter: function () {},
+        },
+      });
+
+      floox.createAction('duplicateActionAfter', shouldNotBeCalled);
+
+      should.throws(function () {
+        floox.createAction('duplicateActionAfter', shouldNotBeCalled);
+      }, function (err) {
+        should(err.message).be.equal('Action "duplicateActionAfter" is already registered');
+        return true;
+      });
+    });
+
     it('should throw if there are two handlers with the same name', function () {
       should.throws(function () {
         floox.createStore('error', {
