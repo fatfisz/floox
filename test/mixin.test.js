@@ -38,11 +38,7 @@ describe('Mixin', () => {
   }
 
   before(() => {
-    floox = createFloox();
-
-    StateFromStoreMixin = floox.StateFromStoreMixin;
-
-    floox.createStore('dummy', {
+    floox = createFloox({
       _data: 1,
       _updates: 0,
 
@@ -63,6 +59,7 @@ describe('Mixin', () => {
       },
     });
 
+    StateFromStoreMixin = floox.StateFromStoreMixin;
 
     MyComponent = React.createClass({
       mixins: [StateFromStoreMixin],

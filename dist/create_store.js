@@ -11,7 +11,7 @@ var _setup_store = require('./setup_store');
 
 var _setup_store2 = _interopRequireDefault(_setup_store);
 
-function createStore(internals, _name, store) {
+function createStore(internals, store) {
   var name = 'floox';
   var stores = internals.stores;
   var storesByName = internals.storesByName;

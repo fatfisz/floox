@@ -25,7 +25,7 @@ var _dispatch = require('./dispatch');
 
 var _dispatch2 = _interopRequireDefault(_dispatch);
 
-function createFloox() {
+function createFloox(store) {
   var dispatcher = new _flux.Dispatcher();
 
   var internals = {
@@ -40,10 +40,11 @@ function createFloox() {
 
   var mixin = (0, _create_mixin2['default'])(internals);
 
+  (0, _create_store2['default'])(internals, store);
+
   return {
     stores: internals.stores,
     actions: internals.actions,
-    createStore: _create_store2['default'].bind(null, internals),
     createAction: _create_action2['default'].bind(null, internals),
     StateFromStoreMixin: mixin
   };

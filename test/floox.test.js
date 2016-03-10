@@ -9,23 +9,21 @@ function shouldBeValidFloox(floox) {
   it('should have the right properties', () => {
     should(floox).be.an.Object();
 
-    floox.should.have.properties([
+    floox.should.have.keys([
       'stores',
       'actions',
-      'createStore',
       'createAction',
+      'StateFromStoreMixin',
     ]);
 
     should(floox.stores).be.an.Object();
     should(floox.actions).be.an.Object();
-
-    should(floox.createStore).be.a.Function();
     should(floox.createAction).be.a.Function();
   });
 }
 
 describe('Floox created by a factory', () => {
-  const floox = createFloox();
+  const floox = createFloox({});
 
   shouldBeValidFloox(floox);
 });

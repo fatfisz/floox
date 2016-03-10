@@ -28,8 +28,6 @@ describe('Stores', () => {
   let internalCallback;
 
   before(() => {
-    floox = createFloox();
-
     myStore = {
       handlers: {
         myAction(data) {
@@ -40,15 +38,14 @@ describe('Stores', () => {
         },
       },
     };
+
+    floox = createFloox(myStore);
   });
 
   describe('creating stores and actions', () => {
     it('should create a store and set up the right properties', () => {
-      const createStoreResult = floox.createStore('myStore', myStore);
-
       const addedStore = floox.stores.floox;
 
-      should(createStoreResult).be.equal(myStore);
       should(addedStore).be.equal(myStore);
 
       shouldBeAStore(addedStore);
@@ -94,12 +91,6 @@ describe('Stores', () => {
       });
 
       floox.actions.internal(testData);
-    });
-
-    it('shouldn\'t allow creating two stores', () => {
-      should(() => {
-        floox.createStore('myStore');
-      }).throw('Can\'t create the store twice');
     });
 
     it('shouldn\'t allow creating two actions with the same name', () => {
