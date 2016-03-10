@@ -1,21 +1,13 @@
-/*
- * floox
- * https://github.com/fatfisz/floox
- *
- * Copyright (c) 2015 FatFisz
- * Licensed under the MIT license.
- */
-
 'use strict';
 
-var should = require('should');
+const should = require('should');
 
-var createFloox = require('../factory');
-var floox = require('../floox');
+const createFloox = require('../factory');
+const floox = require('../floox');
 
 
 function shouldBeValidFloox(floox) {
-  it('should have the right properties', function () {
+  it('should have the right properties', () => {
     should(floox).be.an.Object();
 
     floox.should.have.properties([
@@ -33,12 +25,12 @@ function shouldBeValidFloox(floox) {
   });
 }
 
-describe('Floox created by a factory', function () {
-  var floox = createFloox();
+describe('Floox created by a factory', () => {
+  const floox = createFloox();
 
   shouldBeValidFloox(floox);
 });
 
-describe('Floox singleton', function () {
+describe('Floox singleton', () => {
   shouldBeValidFloox(floox);
 });

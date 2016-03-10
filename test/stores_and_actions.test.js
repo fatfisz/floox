@@ -1,16 +1,8 @@
-/*
- * floox
- * https://github.com/fatfisz/floox
- *
- * Copyright (c) 2015 FatFisz
- * Licensed under the MIT license.
- */
-
 'use strict';
 
-var should = require('should');
+const should = require('should');
 
-var createFloox = require('../factory');
+const createFloox = require('../factory');
 
 
 function shouldBeAStore(store) {
@@ -31,63 +23,50 @@ function shouldNotBeCalled() {
   throw new Error('This function shouln\'t be called');
 }
 
-describe('Stores', function () {
-  var floox;
-  var myStore;
-  var myActionCallback;
-  var internalCallback;
-  var otherStore;
-  var otherMyActionCallback;
-  var namespacedMyActionCallback;
+describe('Stores', () => {
+  let floox;
+  let myStore;
+  let myActionCallback;
+  let internalCallback;
+  let otherStore;
+  let otherMyActionCallback;
+  let namespacedMyActionCallback;
 
-  before(function () {
+  before(() => {
     floox = createFloox();
 
     myStore = {
-
       handlers: {
-
-        myAction: function (data) {
+        myAction(data) {
           myActionCallback.call(this, data);
         },
-
-        internal: function (data) {
+        internal(data) {
           internalCallback.call(this, data);
         },
-
       },
-
     };
 
     otherStore = {
-
       events: ['mychange'],
 
       handlers: {
-
-        myAction: function (data) {
+        myAction(data) {
           otherMyActionCallback.call(this, data);
         },
-
         myNamespace: {
-
-          myAction: function (data) {
+          myAction(data) {
             namespacedMyActionCallback.call(this, data);
           },
-
         },
-
       },
-
     };
   });
 
-  describe('creating stores and actions', function () {
+  describe('creating stores and actions', () => {
+    it('should create a store and set up the right properties', () => {
+      const createStoreResult = floox.createStore('myStore', myStore);
 
-    it('should create a store and set up the right properties', function () {
-      var createStoreResult = floox.createStore('myStore', myStore);
-
-      var addedStore = floox.stores.myStore;
+      const addedStore = floox.stores.myStore;
 
       should(createStoreResult).be.equal(myStore);
       should(addedStore).be.equal(myStore);
@@ -98,10 +77,10 @@ describe('Stores', function () {
       floox.actions.should.have.property('internal');
     });
 
-    it('should create another store properly', function () {
+    it('should create another store properly', () => {
       floox.createStore('otherStore', otherStore);
 
-      var addedStore = floox.stores.otherStore;
+      const addedStore = floox.stores.otherStore;
 
       addedStore.should.be.equal(otherStore);
 
@@ -118,12 +97,12 @@ describe('Stores', function () {
       should(floox.actions.myNamespace.myAction).be.a.Function();
     });
 
-    it('should create a new action and handle it properly', function (done) {
-      var testData = { some: 'other Object' };
-      var leftToHandle = 2;
+    it('should create a new action and handle it properly', (done) => {
+      const testData = { some: 'other Object' };
+      let leftToHandle = 2;
 
       function test(data) {
-        should.deepEqual(data, { some: 'other Object' });
+        should(data).eql({ some: 'other Object' });
 
         leftToHandle -= 1;
         if (leftToHandle === 0) {
@@ -139,24 +118,24 @@ describe('Stores', function () {
         dispatcherActions.myAction(data);
       }
 
-      var createActionResult = floox.createAction('the.action', action);
+      const createActionResult = floox.createAction('the.action', action);
 
       should(createActionResult).be.equal(action);
 
       floox.actions.the.action(testData);
     });
 
-    it('should allow overriding an action in the interface without changing the internals', function (done) {
-      var testData = { some: 'one more Object' };
-      var externalWasCalled = false;
+    it('should allow overriding an action in the interface without changing the internals', (done) => {
+      const testData = { some: 'one more Object' };
+      let externalWasCalled = false;
 
       internalCallback = function (data) {
         externalWasCalled.should.be.true();
-        should.deepEqual(data, { some: 'one more Object' });
+        should(data).eql({ some: 'one more Object' });
         done();
       };
 
-      floox.createAction('internal', function (dispatcherActions, data) {
+      floox.createAction('internal', (dispatcherActions, data) => {
         externalWasCalled = true;
         dispatcherActions.internal(data);
       });
@@ -164,216 +143,159 @@ describe('Stores', function () {
       floox.actions.internal(testData);
     });
 
-    it('shouldn\'t allow creating two stores with the same name', function () {
-      should.throws(function () {
+    it('shouldn\'t allow creating two stores with the same name', () => {
+      should(() => {
         floox.createStore('myStore');
-      }, function (err) {
-        should(err.message).be.equal('Store "myStore" is already registered');
-        return true;
-      });
+      }).throw('Store "myStore" is already registered');
     });
 
-    it('shouldn\'t overwrite an action creator with an action dispatcher created with a store', function () {
-      floox.createAction('doNotOverwrite', function () {});
+    it('shouldn\'t overwrite an action creator with an action dispatcher created with a store', () => {
+      floox.createAction('doNotOverwrite', () => {});
 
-      var theRightHandler = floox.actions.doNotOverwrite;
+      const theRightHandler = floox.actions.doNotOverwrite;
 
       floox.createStore('OverwritingStore', {
         handlers: {
-          doNotOverwrite: function () {},
+          doNotOverwrite() {},
         },
       });
 
       floox.actions.doNotOverwrite.should.be.equal(theRightHandler);
     });
 
-    it('shouldn\'t allow creating two actions with the same name (before store creation)', function () {
+    it('shouldn\'t allow creating two actions with the same name (before store creation)', () => {
       floox.createAction('duplicateActionBefore', shouldNotBeCalled);
 
-      should.throws(function () {
+      should(() => {
         floox.createAction('duplicateActionBefore', shouldNotBeCalled);
-      }, function (err) {
-        should(err.message).be.equal('Action "duplicateActionBefore" is already registered');
-        return true;
-      });
+      }).throw('Action "duplicateActionBefore" is already registered');
     });
 
-    it('shouldn\'t allow creating two actions with the same name (store creation in between)', function () {
+    it('shouldn\'t allow creating two actions with the same name (store creation in between)', () => {
       floox.createAction('duplicateActionBetween', shouldNotBeCalled);
 
       floox.createStore('duplicateActionStoreBetween', {
         handlers: {
-          duplicateActionBetween: function () {},
+          duplicateActionBetween() {},
         },
       });
 
-      should.throws(function () {
+      should(() => {
         floox.createAction('duplicateActionBetween', shouldNotBeCalled);
-      }, function (err) {
-        should(err.message).be.equal('Action "duplicateActionBetween" is already registered');
-        return true;
-      });
+      }).throw('Action "duplicateActionBetween" is already registered');
     });
 
-    it('shouldn\'t allow creating two actions with the same name (after store creation)', function () {
+    it('shouldn\'t allow creating two actions with the same name (after store creation)', () => {
       floox.createStore('duplicateActionStoreAfter', {
         handlers: {
-          duplicateActionAfter: function () {},
+          duplicateActionAfter() {},
         },
       });
 
       floox.createAction('duplicateActionAfter', shouldNotBeCalled);
 
-      should.throws(function () {
+      should(() => {
         floox.createAction('duplicateActionAfter', shouldNotBeCalled);
-      }, function (err) {
-        should(err.message).be.equal('Action "duplicateActionAfter" is already registered');
-        return true;
-      });
+      }).throw('Action "duplicateActionAfter" is already registered');
     });
 
-    it('should throw if there are two handlers with the same name', function () {
-      should.throws(function () {
+    it('should throw if there are two handlers with the same name', () => {
+      should(() => {
         floox.createStore('error', {
-
           handlers: {
-
-            namespaced: { handler: function () {} },
-
-            'namespaced.handler': function () {},
-
+            namespaced: { handler() {} },
+            'namespaced.handler'() {},
           },
 
         });
-      }, function (err) {
-        should(err.message).be.equal(
-          'Store "error" has duplicate action handlers "namespaced.handler"'
-        );
-        return true;
-      });
+      }).throw('Store "error" has duplicate action handlers "namespaced.handler"');
     });
 
-    it('should throw if a handler is named the same as an exisiting namespace', function () {
-      should.throws(function () {
+    it('should throw if a handler is named the same as an exisiting namespace', () => {
+      should(() => {
         floox.createStore('error', {
-
           handlers: {
-
-            very: { namespaced: { handler: function () {} } },
-
-            'very.namespaced': function () {},
-
+            very: { namespaced: { handler() {} } },
+            'very.namespaced'() {},
           },
-
         });
-      }, function (err) {
-        should(err.message).be.equal(
-          'Can\'t name a handler the same as an existing namespace "very.namespaced"'
-        );
-        return true;
-      });
+      }).throw('Can\'t name a handler the same as an existing namespace "very.namespaced"');
     });
 
-    it('should throw if a namespace fragment is a name of an existing handler', function () {
-      should.throws(function () {
+    it('should throw if a namespace fragment is a name of an existing handler', () => {
+      should(() => {
         floox.createStore('error', {
-
           handlers: {
-
-            'quite.namespaced': function () {},
-
-            quite: { namespaced: { handler: function () {} } },
-
+            'quite.namespaced'() {},
+            quite: { namespaced: { handler() {} } },
           },
-
         });
-      }, function (err) {
-        should(err.message).be.equal(
-          '"quite.namespaced" is already a non-namespace'
-        );
-        return true;
-      });
+      }).throw('"quite.namespaced" is already a non-namespace');
     });
 
   });
 
-  describe('events', function () {
+  describe('events', () => {
 
-    it('should handle the default "change" event', function (done) {
-      myStore.on('change', function () {
+    it('should handle the default "change" event', (done) => {
+      myStore.on('change', () => {
         done();
       });
 
       myStore.emit('change');
     });
 
-    it('should throw if an event was not declared', function () {
-      var eventMethods = [
+    it('should throw if an event was not declared', () => {
+      const eventMethods = [
         'emit',
         'on',
         'off',
       ];
 
-      eventMethods.forEach(function (eventMethod) {
-        should.throws(function () {
+      eventMethods.forEach((eventMethod) => {
+        should(() => {
           myStore[eventMethod]('noSuchEvent');
-        }, function (err) {
-          should(err.message).be.equal(
-            'Store "myStore" does not handle the event "noSuchEvent"'
-          );
-          return true;
-        });
+        }).throw('Store "myStore" does not handle the event "noSuchEvent"');
       });
     });
 
-    it('should throw if "events" property has an invalid format', function () {
-      var testedValues = [
+    it('should throw if "events" property has an invalid format', () => {
+      const testedValues = [
         0,
         [],
         'meh',
       ];
 
-      testedValues.forEach(function (value) {
-        should.throws(function () {
+      testedValues.forEach((value) => {
+        should(() => {
           floox.createStore('error', {
             events: value,
           });
-        }, function (err) {
-          should(err.message).be.equal(
-            'The "events" property in store "error" should be a non-empty array'
-          );
-          return true;
-        });
+        }).throw('The "events" property in store "error" should be a non-empty array');
       });
     });
 
-    it('shouldn\'t handle "change" event if it isn\'t defined in "events"', function () {
-      should.throws(function () {
+    it('shouldn\'t handle "change" event if it isn\'t defined in "events"', () => {
+      should(() => {
         otherStore.emit('change');
-      }, function (err) {
-        should(err.message).be.equal(
-          'Store "otherStore" does not handle the event "change"'
-        );
-        return true;
-      });
+      }).throw('Store "otherStore" does not handle the event "change"');
     });
 
-    it('should handle non-default event declared in "events"', function () {
-      should.doesNotThrow(function () {
+    it('should handle non-default event declared in "events"', () => {
+      should.doesNotThrow(() => {
         otherStore.emit('mychange');
       });
     });
 
   });
 
-  describe('actions', function () {
-
-    it('should handle a dispatched action', function (done) {
-      var testData = { some: 'Object' };
-      var leftToHandle = 2;
+  describe('actions', () => {
+    it('should handle a dispatched action', (done) => {
+      const testData = { some: 'Object' };
+      let leftToHandle = 2;
 
       function test(data) {
-        should.deepEqual(data, { some: 'Object' });
+        should(data).eql({ some: 'Object' });
 
         leftToHandle -= 1;
         if (leftToHandle === 0) {
@@ -388,11 +310,11 @@ describe('Stores', function () {
       floox.actions.myAction(testData);
     });
 
-    it('should handle a dispatched namespaced action', function (done) {
-      var testData = { some: 'Object' };
+    it('should handle a dispatched namespaced action', (done) => {
+      const testData = { some: 'Object' };
 
       namespacedMyActionCallback = function test(data) {
-        should.deepEqual(data, { some: 'Object' });
+        should(data).eql({ some: 'Object' });
         done();
       };
 
@@ -402,16 +324,13 @@ describe('Stores', function () {
       floox.actions.myNamespace.myAction(testData);
     });
 
-    it('shouldn\'t allow dispatching in the middle of a dispatch', function (done) {
-      var leftToHandle = 2;
+    it('shouldn\'t allow dispatching in the middle of a dispatch', (done) => {
+      let leftToHandle = 2;
 
       function testAction(actionName) {
-        should.throws(function () {
+        should(() => {
           floox.actions[actionName]();
-        }, function (err) {
-          should(err.message).containEql('Cannot dispatch in the middle of a dispatch.');
-          return true;
-        });
+        }).throw(/Cannot dispatch in the middle of a dispatch./);
       }
 
       function test() {
@@ -430,14 +349,12 @@ describe('Stores', function () {
 
       floox.actions.myAction();
     });
-
   });
 
-  describe('waitFor', function () {
-
-    it('myStore should wait for otherStore', function (done) {
-      var testData = 'test string';
-      var wasOtherStoreCalled = false;
+  describe('waitFor', () => {
+    it('myStore should wait for otherStore', (done) => {
+      const testData = 'test string';
+      let wasOtherStoreCalled = false;
 
       myActionCallback = function (data) {
         this.waitFor(['otherStore']);
@@ -457,9 +374,9 @@ describe('Stores', function () {
       floox.actions.myAction(testData);
     });
 
-    it('otherStore should wait for myStore', function (done) {
-      var testData = 'test string';
-      var wasMyStoreCalled = false;
+    it('otherStore should wait for myStore', (done) => {
+      const testData = 'test string';
+      let wasMyStoreCalled = false;
 
       myActionCallback = function (data) {
         wasMyStoreCalled = true;
@@ -479,18 +396,15 @@ describe('Stores', function () {
       floox.actions.myAction(testData);
     });
 
-    it('should detect a circular dependency and throw', function (done) {
-      var wasMyStoreCalled = false;
-      var wasOtherStoreCalled = false;
+    it('should detect a circular dependency and throw', (done) => {
+      let wasMyStoreCalled = false;
+      let wasOtherStoreCalled = false;
 
       myActionCallback = function () {
         if (wasOtherStoreCalled) {
-          should.throws(function () {
+          should(() => {
             this.waitFor(['otherStore']);
-          }.bind(this), function (err) {
-            should(err.message).containEql('Circular dependency detected');
-            return true;
-          });
+          }).throw(/Circular dependency detected/);
           done();
         } else {
           wasMyStoreCalled = true;
@@ -500,12 +414,9 @@ describe('Stores', function () {
 
       otherMyActionCallback = function () {
         if (wasMyStoreCalled) {
-          should.throws(function () {
+          should(() => {
             this.waitFor(['myStore']);
-          }.bind(this), function (err) {
-            should(err.message).containEql('Circular dependency detected');
-            return true;
-          });
+          }).throw(/Circular dependency detected/);
           done();
         } else {
           wasOtherStoreCalled = true;
@@ -517,7 +428,5 @@ describe('Stores', function () {
 
       floox.actions.myAction();
     });
-
   });
-
 });

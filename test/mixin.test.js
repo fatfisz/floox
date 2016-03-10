@@ -1,33 +1,27 @@
-/*
- * floox
- * https://github.com/fatfisz/floox
- *
- * Copyright (c) 2015 FatFisz
- * Licensed under the MIT license.
- */
-
 'use strict';
 
 // Import jsdom and configure globals before loading React
-var jsdom = require('node-jsdom');
+const jsdom = require('jsdom');
 
 global.document = jsdom.jsdom('<!doctype html><html><body></body></html>');
-global.window = global.document.parentWindow;
+global.window = global.document.defaultView;
 global.navigator = {
   userAgent: 'node.js',
 };
 
-var React = require('react/addons');
-var should = require('should');
+const React = require('react');
+const ReactDOM = require('react-dom');
+const ReactTestUtils = require('react-addons-test-utils');
+const should = require('should');
 
-var createFloox = require('../factory');
+const createFloox = require('../factory');
 
 
-describe('Mixin', function () {
-  var floox;
-  var StateFromStoreMixin;
-  var MyComponent;
-  var renderedComponent;
+describe('Mixin', () => {
+  let floox;
+  let StateFromStoreMixin;
+  let MyComponent;
+  let renderedComponent;
 
   function shouldHaveCorrectState() {
     should.deepEqual(renderedComponent.state, {
@@ -54,7 +48,7 @@ describe('Mixin', function () {
     });
   }
 
-  before(function () {
+  before(() => {
     floox = createFloox();
 
     StateFromStoreMixin = floox.StateFromStoreMixin;
@@ -64,17 +58,17 @@ describe('Mixin', function () {
       _data: 1,
       _updates: 0,
 
-      data: function () {
+      data() {
         return this._data;
       },
 
-      updates: function () {
+      updates() {
         return this._updates;
       },
 
       handlers: {
 
-        myAction: function () {
+        myAction() {
           this._data *= 2;
           this._updates += 1;
           this.emit('change');
@@ -88,13 +82,13 @@ describe('Mixin', function () {
 
       _data: 'a',
 
-      getData: function () {
+      getData() {
         return this._data;
       },
 
       handlers: {
 
-        myAction: function () {
+        myAction() {
           this._data += 'a';
           this.emit('change');
         },
@@ -107,7 +101,7 @@ describe('Mixin', function () {
 
       _data: 'const',
 
-      getData: function () {
+      getData() {
         return this._data;
       },
 
@@ -117,7 +111,7 @@ describe('Mixin', function () {
 
       _data: 'const',
 
-      getData: function () {
+      getData() {
         return this._data;
       },
 
@@ -127,13 +121,13 @@ describe('Mixin', function () {
 
       mixins: [StateFromStoreMixin],
 
-      getInitialState: function () {
+      getInitialState() {
         return {
           notImportant: 1,
         };
       },
 
-      getStoreStateMapping: function () {
+      getStoreStateMapping() {
         return {
           myStore: [
             '_data',
@@ -155,14 +149,14 @@ describe('Mixin', function () {
         };
       },
 
-      render: function () {
+      render() {
         return React.DOM.div();
       },
 
     });
   });
 
-  it('mixin should have all the right properties', function () {
+  it('mixin should have all the right properties', () => {
     should(StateFromStoreMixin).be.an.Object();
 
     StateFromStoreMixin.should.have.properties([
@@ -176,66 +170,54 @@ describe('Mixin', function () {
     should(StateFromStoreMixin.componentWillUnmount).be.a.Function();
   });
 
-  it('should throw if component doesn\'t have a "getStoreStateMapping" method', function () {
-    var ComponentWithoutRequiredMethod = React.createClass({
+  it('should throw if component doesn\'t have a "getStoreStateMapping" method', () => {
+    const ComponentWithoutRequiredMethod = React.createClass({
 
       displayName: 'ComponentWithoutRequiredMethod',
 
       mixins: [StateFromStoreMixin],
 
-      render: function () {
+      render() {
         return null;
       },
 
     });
 
-    var element = React.createElement(ComponentWithoutRequiredMethod);
+    const element = React.createElement(ComponentWithoutRequiredMethod);
 
-    should.throws(function () {
-      React.addons.TestUtils.renderIntoDocument(element);
-    }, function (err) {
-      should(err.message).be.eql(
-        'Component "ComponentWithoutRequiredMethod" should have a ' +
-        '"getStoreStateMapping" method'
-      );
-      return true;
-    });
+    should(() => {
+      ReactTestUtils.renderIntoDocument(element);
+    }).throw('Component "ComponentWithoutRequiredMethod" should have a "getStoreStateMapping" method');
   });
 
-  it('should warn about bad property values (root-level)', function () {
+  it('should warn about bad property values (root-level)', () => {
     function testValue(value, isNamespaced) {
-      var storeName = isNamespaced ? 'namespaced.store' : 'store';
+      const storeName = isNamespaced ? 'namespaced.store' : 'store';
 
-      var ComponentWithBadConfig = React.createClass({
+      const ComponentWithBadConfig = React.createClass({
 
         displayName: 'ComponentWithBadConfig',
 
         mixins: [StateFromStoreMixin],
 
-        getStoreStateMapping: function () {
-          var mapping = {};
+        getStoreStateMapping() {
+          const mapping = {};
 
           mapping[storeName] = value;
           return mapping;
         },
 
-        render: function () {
+        render() {
           return null;
         },
 
       });
 
-      var element = React.createElement(ComponentWithBadConfig);
+      const element = React.createElement(ComponentWithBadConfig);
 
-      should.throws(function () {
-        React.addons.TestUtils.renderIntoDocument(element);
-      }, function (err) {
-        should(err.message).be.eql(
-          '[ComponentWithBadConfig] Expected "' + storeName +
-          '" property to be an array or an object'
-        );
-        return true;
-      });
+      should(() => {
+        ReactTestUtils.renderIntoDocument(element);
+      }).throw(`[ComponentWithBadConfig] Expected "${storeName}" property to be an array or an object`);
     }
 
     testValue(1);
@@ -244,117 +226,100 @@ describe('Mixin', function () {
     testValue('test', true);
   });
 
-  it('should warn about bad property values (unacceptable type)', function () {
+  it('should warn about bad property values (unacceptable type)', () => {
     function testValue(value, isNamespaced) {
-      var storeName = isNamespaced ? 'namespaced.store' : 'store';
+      const storeName = isNamespaced ? 'namespaced.store' : 'store';
 
-      var ComponentWithBadConfig = React.createClass({
+      const ComponentWithBadConfig = React.createClass({
 
         displayName: 'ComponentWithBadConfig',
 
         mixins: [StateFromStoreMixin],
 
-        getStoreStateMapping: function () {
-          var mapping = {};
+        getStoreStateMapping() {
+          const mapping = {};
 
           mapping[storeName] = { data: value };
           return mapping;
         },
 
-        render: function () {
+        render() {
           return null;
         },
 
       });
 
-      var element = React.createElement(ComponentWithBadConfig);
+      const element = React.createElement(ComponentWithBadConfig);
 
-      should.throws(function () {
-        React.addons.TestUtils.renderIntoDocument(element);
-      }, function (err) {
-        should(err.message).be.eql(
-          '[ComponentWithBadConfig] Expected "' + storeName +
-          '.data" property to be an array, an object, or a string'
-        );
-        return true;
-      });
+      should(() => {
+        ReactTestUtils.renderIntoDocument(element);
+      }).throw(`[ComponentWithBadConfig] Expected "${storeName}.data" property to be an array, an object, or a string`);
     }
 
     testValue(1);
     testValue(1, true);
   });
 
-  it('should warn about non-existing stores', function () {
-    var ComponentWithBadConfig = React.createClass({
+  it('should warn about non-existing stores', () => {
+    const ComponentWithBadConfig = React.createClass({
 
       displayName: 'ComponentWithBadConfig',
 
       mixins: [StateFromStoreMixin],
 
-      getStoreStateMapping: function () {
+      getStoreStateMapping() {
         return {
           badStore: ['data'],
         };
       },
 
-      render: function () {
+      render() {
         return null;
       },
 
     });
 
-    var element = React.createElement(ComponentWithBadConfig);
+    const element = React.createElement(ComponentWithBadConfig);
 
-    should.throws(function () {
-      React.addons.TestUtils.renderIntoDocument(element);
-    }, function (err) {
-      should(err.message).be.eql(
-        '[ComponentWithBadConfig] Store "badStore" doesn\'t exist'
-      );
-      return true;
-    });
+    should(() => {
+      ReactTestUtils.renderIntoDocument(element);
+    }).throw('[ComponentWithBadConfig] Store "badStore" doesn\'t exist');
   });
 
-  it('should warn about non-existing store properties (array)', function () {
-    var ComponentWithBadConfig = React.createClass({
+  it('should warn about non-existing store properties (array)', () => {
+    const ComponentWithBadConfig = React.createClass({
 
       displayName: 'ComponentWithBadConfig',
 
       mixins: [StateFromStoreMixin],
 
-      getStoreStateMapping: function () {
+      getStoreStateMapping() {
         return {
           myStore: ['nonExisting'],
         };
       },
 
-      render: function () {
+      render() {
         return null;
       },
 
     });
 
-    var element = React.createElement(ComponentWithBadConfig);
+    const element = React.createElement(ComponentWithBadConfig);
 
-    should.throws(function () {
-      React.addons.TestUtils.renderIntoDocument(element);
-    }, function (err) {
-      should(err.message).be.eql(
-        '[ComponentWithBadConfig] Store "myStore" doesn\'t have ' +
-        '"nonExisting" property'
-      );
-      return true;
-    });
+    should(() => {
+      ReactTestUtils.renderIntoDocument(element);
+    }).throw('[ComponentWithBadConfig] Store "myStore" doesn\'t have "nonExisting" property');
   });
 
-  it('should warn about non-existing store properties (object)', function () {
-    var ComponentWithBadConfig = React.createClass({
+  it('should warn about non-existing store properties (object)', () => {
+    const ComponentWithBadConfig = React.createClass({
 
       displayName: 'ComponentWithBadConfig',
 
       mixins: [StateFromStoreMixin],
 
-      getStoreStateMapping: function () {
+      getStoreStateMapping() {
         return {
           myStore: {
             data: 'nonExisting',
@@ -362,74 +327,60 @@ describe('Mixin', function () {
         };
       },
 
-      render: function () {
+      render() {
         return null;
       },
 
     });
 
-    var element = React.createElement(ComponentWithBadConfig);
+    const element = React.createElement(ComponentWithBadConfig);
 
-    should.throws(function () {
-      React.addons.TestUtils.renderIntoDocument(element);
-    }, function (err) {
-      should(err.message).be.eql(
-        '[ComponentWithBadConfig] Store "myStore" doesn\'t have ' +
-        '"nonExisting" property'
-      );
-      return true;
-    });
+    should(() => {
+      ReactTestUtils.renderIntoDocument(element);
+    }).throw('[ComponentWithBadConfig] Store "myStore" doesn\'t have "nonExisting" property');
   });
 
-  it('should have the right initial state', function () {
-    var element = React.createElement(MyComponent);
+  it('should have the right initial state', () => {
+    const element = React.createElement(MyComponent);
 
-    renderedComponent = React.addons.TestUtils.renderIntoDocument(element);
+    renderedComponent = ReactTestUtils.renderIntoDocument(element);
     shouldHaveCorrectState();
   });
 
-  it('should react to the changes caused by actions', function () {
+  it('should react to the changes caused by actions', () => {
     floox.actions.myAction();
     shouldHaveCorrectState();
   });
 
-  it('should work with batched updates as well', function () {
-    React.addons.batchedUpdates(function () {
-      floox.actions.myAction();
-    });
+  it('should detach listeners properly when unmounting', () => {
+    const container = ReactDOM.findDOMNode(renderedComponent);
+    const element = React.createElement(MyComponent);
 
-    shouldHaveCorrectState();
-  });
+    ReactDOM.unmountComponentAtNode(container.parentNode);
 
-  it('should detach listeners properly when unmounting', function () {
-    var container = React.findDOMNode(renderedComponent);
-    var element = React.createElement(MyComponent);
-
-    React.unmountComponentAtNode(container.parentNode);
-
-    renderedComponent = React.addons.TestUtils.renderIntoDocument(element);
+    renderedComponent = ReactTestUtils.renderIntoDocument(element);
     shouldHaveCorrectState();
 
     floox.actions.myAction();
     shouldHaveCorrectState();
   });
 
-  it('should handle the "storeStateWillUpdate" method', function () {
-    var oldData = floox.stores.myStore.data();
+  it('should handle the "storeStateWillUpdate" method', () => {
+    const oldData = floox.stores.myStore.data();
 
-    var MyComponent = React.createClass({
+    const MyComponent = React.createClass({
 
       displayName: 'MyComponent',
 
       mixins: [StateFromStoreMixin],
 
-      getStoreStateMapping: function () {
+      getStoreStateMapping() {
         return {
           myStore: ['data'],
         };
       },
 
-      storeStateWillUpdate: function (partialNextState, previousState, currentProps) {
+      storeStateWillUpdate(partialNextState, previousState, currentProps) {
         should.deepEqual(previousState, {
           stores: {
             myStore: {
@@ -443,14 +394,14 @@ describe('Mixin', function () {
         partialNextState.test = partialNextState.stores.myStore.data * 2;
       },
 
-      render: function () {
+      render() {
         return null;
       },
 
     });
 
-    var element = React.createElement(MyComponent, { prop: 'value' });
-    var renderedComponent = React.addons.TestUtils.renderIntoDocument(element);
+    const element = React.createElement(MyComponent, { prop: 'value' });
+    const renderedComponent = ReactTestUtils.renderIntoDocument(element);
 
     should.deepEqual(renderedComponent.state, {
       stores: {
