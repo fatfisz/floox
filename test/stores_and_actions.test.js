@@ -51,10 +51,8 @@ describe('Stores', () => {
         myAction(data) {
           otherMyActionCallback.call(this, data);
         },
-        myNamespace: {
-          myAction(data) {
-            namespacedMyActionCallback.call(this, data);
-          },
+        'myNamespace.myAction'(data) {
+          namespacedMyActionCallback.call(this, data);
         },
       },
     };
@@ -86,13 +84,11 @@ describe('Stores', () => {
 
       floox.actions.should.have.property('myAction');
       floox.actions.should.have.property('internal');
-      floox.actions.should.have.property('myNamespace');
-      floox.actions.myNamespace.should.have.property('myAction');
+      floox.actions.should.have.property('myNamespace.myAction');
 
       should(floox.actions.myAction).be.a.Function();
       should(floox.actions.internal).be.a.Function();
-      should(floox.actions.myNamespace).be.an.Object();
-      should(floox.actions.myNamespace.myAction).be.a.Function();
+      should(floox.actions['myNamespace.myAction']).be.a.Function();
     });
 
     it('should create a new action and handle it properly', (done) => {
@@ -120,7 +116,7 @@ describe('Stores', () => {
 
       should(createActionResult).be.equal(action);
 
-      floox.actions.the.action(testData);
+      floox.actions['the.action'](testData);
     });
 
     it('should allow overriding an action in the interface without changing the internals', (done) => {
@@ -196,45 +192,9 @@ describe('Stores', () => {
         floox.createAction('duplicateActionAfter', shouldNotBeCalled);
       }).throw('Action "duplicateActionAfter" is already registered');
     });
-
-    it('should throw if there are two handlers with the same name', () => {
-      should(() => {
-        floox.createStore('error', {
-          handlers: {
-            namespaced: { handler() {} },
-            'namespaced.handler'() {},
-          },
-
-        });
-      }).throw('Store "error" has duplicate action handlers "namespaced.handler"');
-    });
-
-    it('should throw if a handler is named the same as an exisiting namespace', () => {
-      should(() => {
-        floox.createStore('error', {
-          handlers: {
-            very: { namespaced: { handler() {} } },
-            'very.namespaced'() {},
-          },
-        });
-      }).throw('Can\'t name a handler the same as an existing namespace "very.namespaced"');
-    });
-
-    it('should throw if a namespace fragment is a name of an existing handler', () => {
-      should(() => {
-        floox.createStore('error', {
-          handlers: {
-            'quite.namespaced'() {},
-            quite: { namespaced: { handler() {} } },
-          },
-        });
-      }).throw('"quite.namespaced" is already a non-namespace');
-    });
-
   });
 
   describe('events', () => {
-
     it('should handle the default "change" event', (done) => {
       myStore.on('change', () => {
         done();
@@ -319,7 +279,7 @@ describe('Stores', () => {
       myActionCallback = shouldNotBeCalled;
       otherMyActionCallback = shouldNotBeCalled;
 
-      floox.actions.myNamespace.myAction(testData);
+      floox.actions['myNamespace.myAction'](testData);
     });
 
     it('shouldn\'t allow dispatching in the middle of a dispatch', (done) => {

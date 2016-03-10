@@ -7,17 +7,6 @@ Object.defineProperty(exports, '__esModule', {
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 exports['default'] = createMixin;
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _nsProps = require('ns-props');
-
-var _nsProps2 = _interopRequireDefault(_nsProps);
-
-var _for_each_nested_property = require('./for_each_nested_property');
-
-var _for_each_nested_property2 = _interopRequireDefault(_for_each_nested_property);
-
 var defaultComponentName = '<anonymous>';
 
 function getPropertyGetter(store, propertyName, key) {
@@ -52,22 +41,15 @@ function getProcessedStoreStateMapping() {
   var storeStateMapping = this.getStoreStateMapping();
   var processedStoreStateMapping = {};
 
-  (0, _for_each_nested_property2['default'])(storeStateMapping, function (propertyName, value, key) {
-    var isArray = Array.isArray(value);
-    var storeName = propertyName;
-
-    if (!isArray) {
-      storeName = storeName.substring(0, storeName.lastIndexOf('.'));
-    }
+  Object.keys(storeStateMapping).forEach(function (storeName) {
+    var props = storeStateMapping[storeName];
+    var isObject = typeof props === 'object' && props !== null;
+    var isArray = Array.isArray(props);
 
     if (process.env.NODE_ENV !== 'production') {
-      if (propertyName === key && !isArray) {
+      if (!isArray && !isObject) {
         // root-level property that is not an array
-        throw new Error('[' + _this._floox.componentName + '] Expected "' + propertyName + '" property to be an array or an object');
-      }
-
-      if (!isArray && typeof value !== 'string') {
-        throw new Error('[' + _this._floox.componentName + '] Expected "' + propertyName + '" property to be an array, an object, or a string');
+        throw new Error('[' + _this._floox.componentName + '] Expected "' + storeName + '" property to be an array or an object');
       }
 
       if (!_this._floox.storesByName.hasOwnProperty(storeName)) {
@@ -75,19 +57,19 @@ function getProcessedStoreStateMapping() {
       }
     }
 
-    if (!processedStoreStateMapping[storeName]) {
-      processedStoreStateMapping[storeName] = [];
-    }
-
-    var mapping = processedStoreStateMapping[storeName];
+    var mapping = [];
     var store = _this._floox.storesByName[storeName];
 
+    processedStoreStateMapping[storeName] = mapping;
+
     if (isArray) {
-      value.forEach(function (name) {
+      props.forEach(function (name) {
         addStoreProperty.call(_this, mapping, store, storeName, name, name);
       });
     } else {
-      addStoreProperty.call(_this, mapping, store, storeName, value, key);
+      Object.keys(props).forEach(function (key) {
+        addStoreProperty.call(_this, mapping, store, storeName, props[key], key);
+      });
     }
   });
 
@@ -117,7 +99,7 @@ function getStateFromStore(stores, storeName) {
     return getter(acc);
   }, {});
 
-  _nsProps2['default'].set(stores, storeName, storeState);
+  stores[storeName] = storeState;
 
   return stores;
 }

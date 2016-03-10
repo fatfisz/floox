@@ -36,13 +36,11 @@ describe('Mixin', () => {
         otherStore: {
           data: floox.stores.otherStore.getData(),
         },
-        namespaced: {
-          store: {
-            data: floox.stores.namespaced.store.getData(),
-          },
-          otherStore: {
-            data: floox.stores.namespaced.store.getData(),
-          },
+        'namespaced.store': {
+          data: floox.stores['namespaced.store'].getData(),
+        },
+        'namespaced.otherStore': {
+          data: floox.stores['namespaced.otherStore'].getData(),
         },
       },
     });
@@ -141,10 +139,8 @@ describe('Mixin', () => {
           'namespaced.store': {
             data: 'getData',
           },
-          namespaced: {
-            otherStore: {
-              data: 'getData',
-            },
+          'namespaced.otherStore': {
+            data: 'getData',
           },
         };
       },
@@ -190,7 +186,7 @@ describe('Mixin', () => {
     }).throw('Component "ComponentWithoutRequiredMethod" should have a "getStoreStateMapping" method');
   });
 
-  it('should warn about bad property values (root-level)', () => {
+  it('should warn about bad property values', () => {
     function testValue(value, isNamespaced) {
       const storeName = isNamespaced ? 'namespaced.store' : 'store';
 
@@ -224,40 +220,6 @@ describe('Mixin', () => {
     testValue(1, true);
     testValue('test');
     testValue('test', true);
-  });
-
-  it('should warn about bad property values (unacceptable type)', () => {
-    function testValue(value, isNamespaced) {
-      const storeName = isNamespaced ? 'namespaced.store' : 'store';
-
-      const ComponentWithBadConfig = React.createClass({
-
-        displayName: 'ComponentWithBadConfig',
-
-        mixins: [StateFromStoreMixin],
-
-        getStoreStateMapping() {
-          const mapping = {};
-
-          mapping[storeName] = { data: value };
-          return mapping;
-        },
-
-        render() {
-          return null;
-        },
-
-      });
-
-      const element = React.createElement(ComponentWithBadConfig);
-
-      should(() => {
-        ReactTestUtils.renderIntoDocument(element);
-      }).throw(`[ComponentWithBadConfig] Expected "${storeName}.data" property to be an array, an object, or a string`);
-    }
-
-    testValue(1);
-    testValue(1, true);
   });
 
   it('should warn about non-existing stores', () => {
@@ -422,5 +384,4 @@ describe('Mixin', () => {
       },
     });
   });
-
 });

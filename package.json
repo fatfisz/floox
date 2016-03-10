@@ -20,8 +20,7 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "flux": "^2.0.3",
-    "ns-props": "^1.0.0"
+    "flux": "^2.0.3"
   },
   "devDependencies": {
     "babel": "^5.8.35",
