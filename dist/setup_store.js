@@ -18,10 +18,6 @@ var _setup_store_events = require('./setup_store_events');
 
 var _setup_store_events2 = _interopRequireDefault(_setup_store_events);
 
-var _wait_for = require('./wait_for');
-
-var _wait_for2 = _interopRequireDefault(_wait_for);
-
 function registerStoreInDispatcher(store, dispatcher, actionMapping) {
   return dispatcher.register(function (action) {
     var actionName = action.actionName;
@@ -42,7 +38,6 @@ function setupStore(store, name, internals) {
 
   if (handlers) {
     (0, _setup_store_action_mapping2['default'])(handlers, actionMappingInternals);
-    store.waitFor = _wait_for2['default'].bind(null, internals);
   }
 
   (0, _setup_store_events2['default'])(store, name);

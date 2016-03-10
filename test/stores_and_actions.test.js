@@ -10,13 +10,11 @@ function shouldBeAStore(store) {
     'emit',
     'on',
     'off',
-    'waitFor',
   ]);
 
   should(store.emit).be.a.Function();
   should(store.on).be.a.Function();
   should(store.off).be.a.Function();
-  should(store.waitFor).be.a.Function();
 }
 
 function shouldNotBeCalled() {
@@ -345,85 +343,6 @@ describe('Stores', () => {
 
       myActionCallback = test;
       otherMyActionCallback = test;
-      namespacedMyActionCallback = shouldNotBeCalled;
-
-      floox.actions.myAction();
-    });
-  });
-
-  describe('waitFor', () => {
-    it('myStore should wait for otherStore', (done) => {
-      const testData = 'test string';
-      let wasOtherStoreCalled = false;
-
-      myActionCallback = function (data) {
-        this.waitFor(['otherStore']);
-
-        wasOtherStoreCalled.should.be.true();
-        should(data).be.equal('test string');
-
-        done();
-      };
-
-      otherMyActionCallback = function (data) {
-        wasOtherStoreCalled = true;
-
-        should(data).be.equal('test string');
-      };
-
-      floox.actions.myAction(testData);
-    });
-
-    it('otherStore should wait for myStore', (done) => {
-      const testData = 'test string';
-      let wasMyStoreCalled = false;
-
-      myActionCallback = function (data) {
-        wasMyStoreCalled = true;
-
-        should(data).be.equal('test string');
-      };
-
-      otherMyActionCallback = function (data) {
-        this.waitFor(['myStore']);
-
-        wasMyStoreCalled.should.be.true();
-        should(data).be.equal('test string');
-
-        done();
-      };
-
-      floox.actions.myAction(testData);
-    });
-
-    it('should detect a circular dependency and throw', (done) => {
-      let wasMyStoreCalled = false;
-      let wasOtherStoreCalled = false;
-
-      myActionCallback = function () {
-        if (wasOtherStoreCalled) {
-          should(() => {
-            this.waitFor(['otherStore']);
-          }).throw(/Circular dependency detected/);
-          done();
-        } else {
-          wasMyStoreCalled = true;
-          this.waitFor(['otherStore']);
-        }
-      };
-
-      otherMyActionCallback = function () {
-        if (wasMyStoreCalled) {
-          should(() => {
-            this.waitFor(['myStore']);
-          }).throw(/Circular dependency detected/);
-          done();
-        } else {
-          wasOtherStoreCalled = true;
-          this.waitFor(['myStore']);
-        }
-      };
-
       namespacedMyActionCallback = shouldNotBeCalled;
 
       floox.actions.myAction();
