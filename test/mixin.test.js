@@ -24,7 +24,7 @@ describe('Mixin', () => {
   let renderedComponent;
 
   function shouldHaveCorrectState() {
-    should.deepEqual(renderedComponent.state, {
+    should(renderedComponent.state).eql({
       notImportant: 1,
       stores: {
         myStore: {
@@ -343,7 +343,7 @@ describe('Mixin', () => {
       },
 
       storeStateWillUpdate(partialNextState, previousState, currentProps) {
-        should.deepEqual(previousState, {
+        should(previousState).eql({
           stores: {
             myStore: {
               data: oldData,
@@ -351,7 +351,7 @@ describe('Mixin', () => {
           },
         });
 
-        should.deepEqual(currentProps, { prop: 'value' });
+        should(currentProps).eql({ prop: 'value' });
 
         partialNextState.test = partialNextState.stores.myStore.data * 2;
       },
@@ -365,7 +365,7 @@ describe('Mixin', () => {
     const element = React.createElement(MyComponent, { prop: 'value' });
     const renderedComponent = ReactTestUtils.renderIntoDocument(element);
 
-    should.deepEqual(renderedComponent.state, {
+    should(renderedComponent.state).eql({
       stores: {
         myStore: {
           data: oldData,
@@ -375,7 +375,7 @@ describe('Mixin', () => {
 
     floox.actions.myAction();
 
-    should.deepEqual(renderedComponent.state, {
+    should(renderedComponent.state).eql({
       test: floox.stores.myStore.data() * 2,
       stores: {
         myStore: {
