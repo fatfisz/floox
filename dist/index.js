@@ -17,33 +17,33 @@ var _create_mixin = require('./create_mixin');
 
 var _create_mixin2 = _interopRequireDefault(_create_mixin);
 
-var _create_store = require('./create_store');
+var _setup_store = require('./setup_store');
 
-var _create_store2 = _interopRequireDefault(_create_store);
-
-var _dispatch = require('./dispatch');
-
-var _dispatch2 = _interopRequireDefault(_dispatch);
+var _setup_store2 = _interopRequireDefault(_setup_store);
 
 function createFloox(store) {
   var dispatcher = new _flux.Dispatcher();
-
+  var actions = {};
   var internals = {
+    store: store,
     dispatcher: dispatcher,
-    dispatch: _dispatch2['default'].bind(null, dispatcher),
+    dispatch: function dispatch(actionName, data) {
+      dispatcher.dispatch({
+        actionName: actionName,
+        data: data
+      });
+    },
     dispatcherActions: {},
-    actions: {}
+    actions: actions
   };
 
-  var mixin = (0, _create_mixin2['default'])(internals);
-
-  (0, _create_store2['default'])(internals, store);
+  (0, _setup_store2['default'])(store, internals);
 
   return {
-    store: internals.store,
-    actions: internals.actions,
+    store: store,
+    actions: actions,
     createAction: _create_action2['default'].bind(null, internals),
-    StateFromStoreMixin: mixin
+    StateFromStoreMixin: (0, _create_mixin2['default'])(internals)
   };
 }
 

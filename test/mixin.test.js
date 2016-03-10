@@ -142,7 +142,34 @@ describe('Mixin', () => {
     testValue('test');
   });
 
-  it('should warn about bad property values', () => {
+  it('should warn about bad property values (array)', () => {
+    function testValue(value) {
+      const ComponentWithBadConfig = React.createClass({
+        displayName: 'ComponentWithBadConfig',
+
+        mixins: [StateFromStoreMixin],
+
+        getStoreStateMapping() {
+          return [value];
+        },
+
+        render() {
+          return null;
+        },
+      });
+
+      const element = React.createElement(ComponentWithBadConfig);
+
+      should(() => {
+        ReactTestUtils.renderIntoDocument(element);
+      }).throw('[ComponentWithBadConfig] Expected the mapping value at index 0 to be a string');
+    }
+
+    testValue(1);
+    testValue(null);
+  });
+
+  it('should warn about bad property values (object)', () => {
     function testValue(value) {
       const ComponentWithBadConfig = React.createClass({
         displayName: 'ComponentWithBadConfig',

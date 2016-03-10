@@ -30,6 +30,7 @@ function registerStoreInDispatcher(store, dispatcher, actionMapping) {
 
 function setupStore(store, internals) {
   var handlers = store.handlers;
+
   var actionMapping = {};
   var actionMappingInternals = _extends({
     actionMapping: actionMapping

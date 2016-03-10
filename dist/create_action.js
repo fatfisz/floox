@@ -6,8 +6,8 @@ Object.defineProperty(exports, '__esModule', {
 exports['default'] = createAction;
 
 function createAction(internals, name, action) {
-  var dispatcherActions = internals.dispatcherActions;
   var actions = internals.actions;
+  var dispatcherActions = internals.dispatcherActions;
 
   if (process.env.NODE_ENV !== 'production' && actions.hasOwnProperty(name) && (!dispatcherActions.hasOwnProperty(name) || actions[name] !== dispatcherActions[name])) {
     throw new Error('Action "' + name + '" is already registered');
