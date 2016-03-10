@@ -44,7 +44,7 @@ describe('Stores', () => {
 
   describe('creating stores and actions', () => {
     it('should create a store and set up the right properties', () => {
-      const addedStore = floox.stores.floox;
+      const addedStore = floox.store;
 
       should(addedStore).be.equal(myStore);
 
@@ -121,7 +121,7 @@ describe('Stores', () => {
       eventMethods.forEach((eventMethod) => {
         should(() => {
           myStore[eventMethod]('noSuchEvent');
-        }).throw('Store "floox" does not handle the event "noSuchEvent"');
+        }).throw('Unknown event "noSuchEvent"');
       });
     });
   });

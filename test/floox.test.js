@@ -10,13 +10,13 @@ function shouldBeValidFloox(floox) {
     should(floox).be.an.Object();
 
     floox.should.have.keys([
-      'stores',
+      'store',
       'actions',
       'createAction',
       'StateFromStoreMixin',
     ]);
 
-    should(floox.stores).be.an.Object();
+    should(floox.store).be.an.Object();
     should(floox.actions).be.an.Object();
     should(floox.createAction).be.a.Function();
   });

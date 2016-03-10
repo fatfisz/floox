@@ -28,11 +28,10 @@ function registerStoreInDispatcher(store, dispatcher, actionMapping) {
   });
 }
 
-function setupStore(store, name, internals) {
+function setupStore(store, internals) {
   var handlers = store.handlers;
   var actionMapping = {};
   var actionMappingInternals = _extends({
-    name: name,
     actionMapping: actionMapping
   }, internals);
 
@@ -40,7 +39,7 @@ function setupStore(store, name, internals) {
     (0, _setup_store_action_mapping2['default'])(handlers, actionMappingInternals);
   }
 
-  (0, _setup_store_events2['default'])(store, name);
+  (0, _setup_store_events2['default'])(store);
 
   return registerStoreInDispatcher(store, internals.dispatcher, actionMapping);
 }

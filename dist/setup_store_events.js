@@ -9,13 +9,13 @@ var _events = require('events');
 
 var defaultEvents = ['change'];
 
-function setupStoreEvents(store, name) {
+function setupStoreEvents(store) {
   var eventEmitter = new _events.EventEmitter();
 
   var events = store.hasOwnProperty('events') ? store.events : defaultEvents;
 
   if (process.env.NODE_ENV !== 'production' && !Array.isArray(events) || !events.length) {
-    throw new Error('The "events" property in store "' + name + '" should be a non-empty array');
+    throw new Error('The "events" property should be a non-empty array');
   }
 
   if (store.hasOwnProperty('maxListeners')) {
@@ -24,7 +24,7 @@ function setupStoreEvents(store, name) {
 
   store.emit = function (event) {
     if (process.env.NODE_ENV !== 'production' && events.indexOf(event) === -1) {
-      throw new Error('Store "' + name + '" does not handle the event "' + event + '"');
+      throw new Error('Unknown event "' + event + '"');
     }
 
     eventEmitter.emit(event);
@@ -32,7 +32,7 @@ function setupStoreEvents(store, name) {
 
   store.on = function (event, handler) {
     if (process.env.NODE_ENV !== 'production' && events.indexOf(event) === -1) {
-      throw new Error('Store "' + name + '" does not handle the event "' + event + '"');
+      throw new Error('Unknown event "' + event + '"');
     }
 
     eventEmitter.on(event, handler);
@@ -40,7 +40,7 @@ function setupStoreEvents(store, name) {
 
   store.off = function (event, handler) {
     if (process.env.NODE_ENV !== 'production' && events.indexOf(event) === -1) {
-      throw new Error('Store "' + name + '" does not handle the event "' + event + '"');
+      throw new Error('Unknown event "' + event + '"');
     }
 
     eventEmitter.removeListener(event, handler);

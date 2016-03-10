@@ -26,13 +26,11 @@ describe('Mixin', () => {
   function shouldHaveCorrectState() {
     should(renderedComponent.state).eql({
       notImportant: 1,
-      stores: {
-        floox: {
-          _data: floox.stores.floox._data,
-          _updates: floox.stores.floox._updates,
-          data: floox.stores.floox.data(),
-          updates: floox.stores.floox.updates(),
-        },
+      store: {
+        _data: floox.store._data,
+        _updates: floox.store._updates,
+        data: floox.store.data(),
+        updates: floox.store.updates(),
       },
     });
   }
@@ -71,14 +69,12 @@ describe('Mixin', () => {
       },
 
       getStoreStateMapping() {
-        return {
-          floox: [
-            '_data',
-            '_updates',
-            'data',
-            'updates',
-          ],
-        };
+        return [
+          '_data',
+          '_updates',
+          'data',
+          'updates',
+        ];
       },
 
       render() {
@@ -119,20 +115,15 @@ describe('Mixin', () => {
     }).throw('Component "ComponentWithoutRequiredMethod" should have a "getStoreStateMapping" method');
   });
 
-  it('should warn about bad property values', () => {
-    function testValue(value, isNamespaced) {
-      const storeName = isNamespaced ? 'namespaced.store' : 'store';
-
+  it('should warn about bad mapping values', () => {
+    function testValue(value) {
       const ComponentWithBadConfig = React.createClass({
         displayName: 'ComponentWithBadConfig',
 
         mixins: [StateFromStoreMixin],
 
         getStoreStateMapping() {
-          const mapping = {};
-
-          mapping[storeName] = value;
-          return mapping;
+          return value;
         },
 
         render() {
@@ -144,37 +135,40 @@ describe('Mixin', () => {
 
       should(() => {
         ReactTestUtils.renderIntoDocument(element);
-      }).throw(`[ComponentWithBadConfig] Expected "${storeName}" property to be an array or an object`);
+      }).throw('[ComponentWithBadConfig] Expected the store state mapping to be an array or an object');
     }
 
     testValue(1);
-    testValue(1, true);
     testValue('test');
-    testValue('test', true);
   });
 
-  it('should warn about non-existing stores', () => {
-    const ComponentWithBadConfig = React.createClass({
-      displayName: 'ComponentWithBadConfig',
+  it('should warn about bad property values', () => {
+    function testValue(value) {
+      const ComponentWithBadConfig = React.createClass({
+        displayName: 'ComponentWithBadConfig',
 
-      mixins: [StateFromStoreMixin],
+        mixins: [StateFromStoreMixin],
 
-      getStoreStateMapping() {
-        return {
-          badStore: ['data'],
-        };
-      },
+        getStoreStateMapping() {
+          return {
+            prop: value,
+          };
+        },
 
-      render() {
-        return null;
-      },
-    });
+        render() {
+          return null;
+        },
+      });
 
-    const element = React.createElement(ComponentWithBadConfig);
+      const element = React.createElement(ComponentWithBadConfig);
 
-    should(() => {
-      ReactTestUtils.renderIntoDocument(element);
-    }).throw('[ComponentWithBadConfig] Store "badStore" doesn\'t exist');
+      should(() => {
+        ReactTestUtils.renderIntoDocument(element);
+      }).throw('[ComponentWithBadConfig] Expected the "prop" property to be a string');
+    }
+
+    testValue(1);
+    testValue(null);
   });
 
   it('should warn about non-existing store properties (array)', () => {
@@ -184,9 +178,7 @@ describe('Mixin', () => {
       mixins: [StateFromStoreMixin],
 
       getStoreStateMapping() {
-        return {
-          floox: ['nonExisting'],
-        };
+        return ['nonExisting'];
       },
 
       render() {
@@ -198,7 +190,7 @@ describe('Mixin', () => {
 
     should(() => {
       ReactTestUtils.renderIntoDocument(element);
-    }).throw('[ComponentWithBadConfig] Store "floox" doesn\'t have "nonExisting" property');
+    }).throw('[ComponentWithBadConfig] Unknown store property "nonExisting"');
   });
 
   it('should warn about non-existing store properties (object)', () => {
@@ -209,9 +201,7 @@ describe('Mixin', () => {
 
       getStoreStateMapping() {
         return {
-          floox: {
-            data: 'nonExisting',
-          },
+          data: 'nonExisting',
         };
       },
 
@@ -224,7 +214,7 @@ describe('Mixin', () => {
 
     should(() => {
       ReactTestUtils.renderIntoDocument(element);
-    }).throw('[ComponentWithBadConfig] Store "floox" doesn\'t have "nonExisting" property');
+    }).throw('[ComponentWithBadConfig] Unknown store property "nonExisting"');
   });
 
   it('should have the right initial state', () => {
@@ -253,7 +243,7 @@ describe('Mixin', () => {
   });
 
   it('should handle the "storeStateWillUpdate" method', () => {
-    const oldData = floox.stores.floox.data();
+    const oldData = floox.store.data();
 
     const MyComponent = React.createClass({
       displayName: 'MyComponent',
@@ -261,23 +251,19 @@ describe('Mixin', () => {
       mixins: [StateFromStoreMixin],
 
       getStoreStateMapping() {
-        return {
-          floox: ['data'],
-        };
+        return ['data'];
       },
 
       storeStateWillUpdate(partialNextState, previousState, currentProps) {
         should(previousState).eql({
-          stores: {
-            floox: {
-              data: oldData,
-            },
+          store: {
+            data: oldData,
           },
         });
 
         should(currentProps).eql({ prop: 'value' });
 
-        partialNextState.test = partialNextState.stores.floox.data * 2;
+        partialNextState.test = partialNextState.store.data * 2;
       },
 
       render() {
@@ -289,21 +275,17 @@ describe('Mixin', () => {
     const renderedComponent = ReactTestUtils.renderIntoDocument(element);
 
     should(renderedComponent.state).eql({
-      stores: {
-        floox: {
-          data: oldData,
-        },
+      store: {
+        data: oldData,
       },
     });
 
     floox.actions.myAction();
 
     should(renderedComponent.state).eql({
-      test: floox.stores.floox.data() * 2,
-      stores: {
-        floox: {
-          data: floox.stores.floox.data(),
-        },
+      test: floox.store.data() * 2,
+      store: {
+        data: floox.store.data(),
       },
     });
   });

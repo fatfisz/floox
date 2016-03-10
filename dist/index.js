@@ -31,9 +31,6 @@ function createFloox(store) {
   var internals = {
     dispatcher: dispatcher,
     dispatch: _dispatch2['default'].bind(null, dispatcher),
-    stores: {},
-    storesByName: {},
-    dispatchTokens: {},
     dispatcherActions: {},
     actions: {}
   };
@@ -43,7 +40,7 @@ function createFloox(store) {
   (0, _create_store2['default'])(internals, store);
 
   return {
-    stores: internals.stores,
+    store: internals.store,
     actions: internals.actions,
     createAction: _create_action2['default'].bind(null, internals),
     StateFromStoreMixin: mixin
