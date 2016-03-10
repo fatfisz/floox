@@ -14,7 +14,7 @@ const ReactDOM = require('react-dom');
 const ReactTestUtils = require('react-addons-test-utils');
 const should = require('should');
 
-const createFloox = require('../factory');
+const createFloox = require('../dist');
 
 
 describe('Mixin', () => {
@@ -27,20 +27,11 @@ describe('Mixin', () => {
     should(renderedComponent.state).eql({
       notImportant: 1,
       stores: {
-        myStore: {
-          _data: floox.stores.myStore._data,
-          _updates: floox.stores.myStore._updates,
-          data: floox.stores.myStore.data(),
-          updates: floox.stores.myStore.updates(),
-        },
-        otherStore: {
-          data: floox.stores.otherStore.getData(),
-        },
-        'namespaced.store': {
-          data: floox.stores['namespaced.store'].getData(),
-        },
-        'namespaced.otherStore': {
-          data: floox.stores['namespaced.otherStore'].getData(),
+        floox: {
+          _data: floox.stores.floox._data,
+          _updates: floox.stores.floox._updates,
+          data: floox.stores.floox.data(),
+          updates: floox.stores.floox.updates(),
         },
       },
     });
@@ -51,8 +42,7 @@ describe('Mixin', () => {
 
     StateFromStoreMixin = floox.StateFromStoreMixin;
 
-    floox.createStore('myStore', {
-
+    floox.createStore('dummy', {
       _data: 1,
       _updates: 0,
 
@@ -65,58 +55,16 @@ describe('Mixin', () => {
       },
 
       handlers: {
-
         myAction() {
           this._data *= 2;
           this._updates += 1;
           this.emit('change');
         },
-
       },
-
     });
 
-    floox.createStore('otherStore', {
-
-      _data: 'a',
-
-      getData() {
-        return this._data;
-      },
-
-      handlers: {
-
-        myAction() {
-          this._data += 'a';
-          this.emit('change');
-        },
-
-      },
-
-    });
-
-    floox.createStore('namespaced.store', {
-
-      _data: 'const',
-
-      getData() {
-        return this._data;
-      },
-
-    });
-
-    floox.createStore('namespaced.otherStore', {
-
-      _data: 'const',
-
-      getData() {
-        return this._data;
-      },
-
-    });
 
     MyComponent = React.createClass({
-
       mixins: [StateFromStoreMixin],
 
       getInitialState() {
@@ -127,28 +75,18 @@ describe('Mixin', () => {
 
       getStoreStateMapping() {
         return {
-          myStore: [
+          floox: [
             '_data',
             '_updates',
             'data',
             'updates',
           ],
-          otherStore: {
-            data: 'getData',
-          },
-          'namespaced.store': {
-            data: 'getData',
-          },
-          'namespaced.otherStore': {
-            data: 'getData',
-          },
         };
       },
 
       render() {
         return React.DOM.div();
       },
-
     });
   });
 
@@ -168,7 +106,6 @@ describe('Mixin', () => {
 
   it('should throw if component doesn\'t have a "getStoreStateMapping" method', () => {
     const ComponentWithoutRequiredMethod = React.createClass({
-
       displayName: 'ComponentWithoutRequiredMethod',
 
       mixins: [StateFromStoreMixin],
@@ -176,7 +113,6 @@ describe('Mixin', () => {
       render() {
         return null;
       },
-
     });
 
     const element = React.createElement(ComponentWithoutRequiredMethod);
@@ -191,7 +127,6 @@ describe('Mixin', () => {
       const storeName = isNamespaced ? 'namespaced.store' : 'store';
 
       const ComponentWithBadConfig = React.createClass({
-
         displayName: 'ComponentWithBadConfig',
 
         mixins: [StateFromStoreMixin],
@@ -206,7 +141,6 @@ describe('Mixin', () => {
         render() {
           return null;
         },
-
       });
 
       const element = React.createElement(ComponentWithBadConfig);
@@ -224,7 +158,6 @@ describe('Mixin', () => {
 
   it('should warn about non-existing stores', () => {
     const ComponentWithBadConfig = React.createClass({
-
       displayName: 'ComponentWithBadConfig',
 
       mixins: [StateFromStoreMixin],
@@ -238,7 +171,6 @@ describe('Mixin', () => {
       render() {
         return null;
       },
-
     });
 
     const element = React.createElement(ComponentWithBadConfig);
@@ -250,40 +182,37 @@ describe('Mixin', () => {
 
   it('should warn about non-existing store properties (array)', () => {
     const ComponentWithBadConfig = React.createClass({
-
       displayName: 'ComponentWithBadConfig',
 
       mixins: [StateFromStoreMixin],
 
       getStoreStateMapping() {
         return {
-          myStore: ['nonExisting'],
+          floox: ['nonExisting'],
         };
       },
 
       render() {
         return null;
       },
-
     });
 
     const element = React.createElement(ComponentWithBadConfig);
 
     should(() => {
       ReactTestUtils.renderIntoDocument(element);
-    }).throw('[ComponentWithBadConfig] Store "myStore" doesn\'t have "nonExisting" property');
+    }).throw('[ComponentWithBadConfig] Store "floox" doesn\'t have "nonExisting" property');
   });
 
   it('should warn about non-existing store properties (object)', () => {
     const ComponentWithBadConfig = React.createClass({
-
       displayName: 'ComponentWithBadConfig',
 
       mixins: [StateFromStoreMixin],
 
       getStoreStateMapping() {
         return {
-          myStore: {
+          floox: {
             data: 'nonExisting',
           },
         };
@@ -292,14 +221,13 @@ describe('Mixin', () => {
       render() {
         return null;
       },
-
     });
 
     const element = React.createElement(ComponentWithBadConfig);
 
     should(() => {
       ReactTestUtils.renderIntoDocument(element);
-    }).throw('[ComponentWithBadConfig] Store "myStore" doesn\'t have "nonExisting" property');
+    }).throw('[ComponentWithBadConfig] Store "floox" doesn\'t have "nonExisting" property');
   });
 
   it('should have the right initial state', () => {
@@ -328,24 +256,23 @@ describe('Mixin', () => {
   });
 
   it('should handle the "storeStateWillUpdate" method', () => {
-    const oldData = floox.stores.myStore.data();
+    const oldData = floox.stores.floox.data();
 
     const MyComponent = React.createClass({
-
       displayName: 'MyComponent',
 
       mixins: [StateFromStoreMixin],
 
       getStoreStateMapping() {
         return {
-          myStore: ['data'],
+          floox: ['data'],
         };
       },
 
       storeStateWillUpdate(partialNextState, previousState, currentProps) {
         should(previousState).eql({
           stores: {
-            myStore: {
+            floox: {
               data: oldData,
             },
           },
@@ -353,13 +280,12 @@ describe('Mixin', () => {
 
         should(currentProps).eql({ prop: 'value' });
 
-        partialNextState.test = partialNextState.stores.myStore.data * 2;
+        partialNextState.test = partialNextState.stores.floox.data * 2;
       },
 
       render() {
         return null;
       },
-
     });
 
     const element = React.createElement(MyComponent, { prop: 'value' });
@@ -367,7 +293,7 @@ describe('Mixin', () => {
 
     should(renderedComponent.state).eql({
       stores: {
-        myStore: {
+        floox: {
           data: oldData,
         },
       },
@@ -376,10 +302,10 @@ describe('Mixin', () => {
     floox.actions.myAction();
 
     should(renderedComponent.state).eql({
-      test: floox.stores.myStore.data() * 2,
+      test: floox.stores.floox.data() * 2,
       stores: {
-        myStore: {
-          data: floox.stores.myStore.data(),
+        floox: {
+          data: floox.stores.floox.data(),
         },
       },
     });

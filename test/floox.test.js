@@ -2,8 +2,7 @@
 
 const should = require('should');
 
-const createFloox = require('../factory');
-const floox = require('../floox');
+const createFloox = require('../dist');
 
 
 function shouldBeValidFloox(floox) {
@@ -28,9 +27,5 @@ function shouldBeValidFloox(floox) {
 describe('Floox created by a factory', () => {
   const floox = createFloox();
 
-  shouldBeValidFloox(floox);
-});
-
-describe('Floox singleton', () => {
   shouldBeValidFloox(floox);
 });

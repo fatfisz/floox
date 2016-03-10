@@ -1,8 +1,8 @@
 {
   "name": "floox",
   "version": "1.0.2",
-  "main": "floox.js",
   "description": "A nice framework for Flux",
+  "main": "dist/index.js",
   "keywords": [
     "flux",
     "store",
