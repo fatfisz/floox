@@ -19,9 +19,7 @@
     "prepublish": "grunt prepublish",
     "test": "grunt test"
   },
-  "dependencies": {
-    "flux": "^2.0.3"
-  },
+  "dependencies": {},
   "devDependencies": {
     "babel": "^5.8.35",
     "eslint": "^2.2.0",
