@@ -7,10 +7,6 @@ exports['default'] = createFloox;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _create_action = require('./create_action');
-
-var _create_action2 = _interopRequireDefault(_create_action);
-
 var _create_mixin = require('./create_mixin');
 
 var _create_mixin2 = _interopRequireDefault(_create_mixin);
@@ -58,7 +54,18 @@ function createFloox(store) {
     store: store,
     actions: actions,
     createAction: function createAction(name, action) {
-      return (0, _create_action2['default'])(internals, name, action);
+      var actions = internals.actions;
+      var dispatcherActions = internals.dispatcherActions;
+
+      if (process.env.NODE_ENV !== 'production' && actions.hasOwnProperty(name) && (!dispatcherActions.hasOwnProperty(name) || actions[name] !== dispatcherActions[name])) {
+        throw new Error('Action "' + name + '" is already registered');
+      }
+
+      var boundAction = action.bind(null, dispatcherActions);
+
+      actions[name] = boundAction;
+
+      return action;
     },
     StateFromStoreMixin: (0, _create_mixin2['default'])(internals)
   };
