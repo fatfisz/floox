@@ -2,7 +2,7 @@
 
 const should = require('should');
 
-const createFloox = require('../dist');
+const createFloox = require('../dist').createFloox;
 
 
 function shouldBeAStore(store) {

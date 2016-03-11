@@ -14,7 +14,7 @@ const ReactDOM = require('react-dom');
 const ReactTestUtils = require('react-addons-test-utils');
 const should = require('should');
 
-const createFloox = require('../dist');
+const createFloox = require('../dist').createFloox;
 
 
 describe('Mixin', () => {
