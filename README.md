@@ -15,7 +15,7 @@ npm install floox --save
 
 ## Backstory
 
-While using Floox for a few months in my projects I encountered some problems. Those projects were isomorphic websites, and I quickly realised that `StateFromStoreMixin` was useless in such scenarios because of its ties to `floox` instances. There were also some areas that were overly complicated (events, multiple stores).
+I was using Floox for a few months for creating isomorphic websites, and I soon found out that there were some problems. The `StateFromStoreMixin` mixin was useless in such scenarios because of its ties to `floox` instances. There were also some areas that were overly complicated (events, multiple stores).
 
 Floox 2 is a complete makeover of the previous API. It now has no dependencies (even got rid of the Event Emitter) and is quite lightweight (~2kB gzipped + minified).
 
