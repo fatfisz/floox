@@ -9,13 +9,11 @@
 'use strict';
 
 // Import jsdom and configure globals before loading React
-var jsdom = require('node-jsdom');
+var jsdom = require('jsdom');
 
 global.document = jsdom.jsdom('<!doctype html><html><body></body></html>');
-global.window = global.document.parentWindow;
-global.navigator = {
-  userAgent: 'node.js',
-};
+global.window = global.document.defaultView;
+global.navigator = global.window.navigator;
 
 var React = require('react/addons');
 var should = require('should');
