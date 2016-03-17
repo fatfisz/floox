@@ -14,11 +14,17 @@ module.exports = function register(grunt) {
   grunt.initConfig({
 
     eslint: {
-      all: [
-        'lib',
-        'gruntfile.js',
-        'test',
-      ],
+      options: {
+        useEslintrc: false,
+      },
+      all: {
+        options: { configFile: '.eslintrc' },
+        src: ['lib', 'gruntfile.js'],
+      },
+      test: {
+        options: { configFile: 'test/.eslintrc' },
+        src: ['test'],
+      },
     },
 
     mochaTest: {
