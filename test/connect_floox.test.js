@@ -4,10 +4,10 @@ const ReactTestUtils = require('react-addons-test-utils');
 const should = require('should/as-function');
 const sinon = require('sinon');
 
-const FlooxConnector = require('../dist/floox_connector');
+const connectFloox = require('../dist/connect_floox');
 
 
-describe('FlooxConnector', () => {
+describe('connectFloox', () => {
   let React;
   let renderer;
 
@@ -32,33 +32,28 @@ describe('FlooxConnector', () => {
     global.console.error.restore();
   });
 
-  it('should warn if the are no props', () => {
-    const element = React.createElement(FlooxConnector);
-
-    try {
-      renderer.render(element);
-    } catch (err) {
-      // Do nothing
-    }
-
-    should(global.console.error).be.calledWith(
-      'Warning: Failed Context Types: Required context `floox` was not specified in `FlooxConnector`.');
+  it('should throw if there is no component', () => {
+    should(() => {
+      connectFloox();
+    }).throw('Expected Component to be a string (for built-in components) or a class/function (for composite components).');
   });
 
-  it('should throw if the children are missing', () => {
-    const element = React.createElement(FlooxConnector);
-
+  it('should throw if the component has invalid type', () => {
     should(() => {
-      renderer.render(element, { floox: {} });
-    }).throw('onlyChild must be passed a children with exactly one child.');
+      connectFloox(null);
+    }).throw('Expected Component to be a string (for built-in components) or a class/function (for composite components).');
   });
 
-  it('should throw if there are many children', () => {
-    const element = React.createElement(FlooxConnector, {}, React.DOM.div(), React.DOM.div());
-
+  it('should throw if there is no mapping', () => {
     should(() => {
-      renderer.render(element, { floox: {} });
-    }).throw('onlyChild must be passed a children with exactly one child.');
+      connectFloox('test');
+    }).throw('Expected mapping to be an object.');
+  });
+
+  it('should throw if the mapping has invalid type', () => {
+    should(() => {
+      connectFloox('test', null);
+    }).throw('Expected mapping to be an object.');
   });
 
   it('should pass the props from the Floox state', () => {
@@ -66,19 +61,45 @@ describe('FlooxConnector', () => {
       state: {
         testProp: 'test prop',
         anotherTestProp: 'another test prop',
-        overwrittenProp: 'parent value',
+        overwrittenProp: 'connector value',
+        thisPropIsNotReferredTo: 'and so it won\'t be passed',
       },
     };
-    const childElement = React.createElement('test', {
-      childProp: 'child prop',
-      overwrittenProp: 'child value',
-    });
-    const element = React.createElement(FlooxConnector, {
+    const Component = connectFloox('test', {
       testProp: true,
       someOtherProp: 'anotherTestProp',
       overwrittenProp: true,
       missingProp: true,
-    }, childElement);
+    });
+    const element = React.createElement(Component, {
+      elementProp: 'element prop',
+      overwrittenProp: 'element value',
+    });
+
+    renderer.render(element, { floox });
+    const output = renderer.getRenderOutput();
+
+    should(output.props).be.eql({
+      testProp: 'test prop',
+      someOtherProp: 'another test prop',
+      overwrittenProp: 'connector value',
+      elementProp: 'element prop',
+      // eslint-disable-next-line no-undefined
+      missingProp: undefined,
+    });
+  });
+
+  it('should pass the Floox object if the target key is \'floox\'', () => {
+    const floox = {
+      state: {
+        testProp: 'test prop',
+      },
+    };
+    const Component = connectFloox('test', {
+      floox: true,
+      testProp: true,
+    });
+    const element = React.createElement(Component);
 
     renderer.render(element, { floox });
     const output = renderer.getRenderOutput();
@@ -86,42 +107,33 @@ describe('FlooxConnector', () => {
     should(output.props).be.eql({
       floox,
       testProp: 'test prop',
-      someOtherProp: 'another test prop',
-      overwrittenProp: 'parent value',
-      childProp: 'child prop',
-      // eslint-disable-next-line no-undefined
-      missingProp: undefined,
     });
   });
 
-  it('should warn if a prop is not `true` nor a string', () => {
-    const floox = {
-      state: {},
-    };
-    const element = React.createElement(FlooxConnector, {
+  it('should warn if target keys are neither `true` nor strings', () => {
+    connectFloox('test', {
       false: false,
       null: null,
       number: 42,
       object: {},
-    }, React.DOM.div());
-
-    renderer.render(element, { floox });
+    });
 
     should(global.console.error).be.calledWith(
-      'Warning: The value of the false prop should be "true" or a string.');
+      'Warning: The value of the false property should be either "true" or a string, got false.');
     should(global.console.error).be.calledWith(
-      'Warning: The value of the null prop should be "true" or a string.');
+      'Warning: The value of the null property should be either "true" or a string, got null.');
     should(global.console.error).be.calledWith(
-      'Warning: The value of the number prop should be "true" or a string.');
+      'Warning: The value of the number property should be either "true" or a string, got 42.');
     should(global.console.error).be.calledWith(
-      'Warning: The value of the object prop should be "true" or a string.');
+      'Warning: The value of the object property should be either "true" or a string, got [object Object].');
   });
 
   it('should have the `flooxUpdate` method that forces update', () => {
     const floox = {
       state: {},
     };
-    const element = React.createElement(FlooxConnector, {}, React.DOM.div());
+    const Component = connectFloox('div', {});
+    const element = React.createElement(Component, {});
     const callback = () => {};
 
     renderer.render(element, { floox });
@@ -143,7 +155,8 @@ describe('FlooxConnector', () => {
     const floox = {
       addChangeListener,
     };
-    const element = React.createElement(FlooxConnector, {}, React.DOM.div());
+    const Component = connectFloox('div', {});
+    const element = React.createElement(Component, {});
 
     renderer.render(element, { floox });
     const instance = renderer._instance._instance;
@@ -159,7 +172,8 @@ describe('FlooxConnector', () => {
     const floox = {
       removeChangeListener,
     };
-    const element = React.createElement(FlooxConnector, {}, React.DOM.div());
+    const Component = connectFloox('div', {});
+    const element = React.createElement(Component, {});
 
     renderer.render(element, { floox });
     const instance = renderer._instance._instance;

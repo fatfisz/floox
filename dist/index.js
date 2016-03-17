@@ -6,9 +6,9 @@ Object.defineProperty(exports, '__esModule', {
 
 function _interopRequire(obj) { return obj && obj.__esModule ? obj['default'] : obj; }
 
-var _floox_connector = require('./floox_connector');
+var _connect_floox = require('./connect_floox');
 
-exports.FlooxConnector = _interopRequire(_floox_connector);
+exports.connectFloox = _interopRequire(_connect_floox);
 
 var _floox_provider = require('./floox_provider');
 
