@@ -21,9 +21,11 @@ Floox 2 is a complete makeover of the previous API. It now has no dependencies (
 
 ## Basic usage
 
+This section is still under construction!
 
 ## API
 
+This section is still under construction!
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style.
