@@ -11,7 +11,9 @@ module.exports = function register(grunt) {
       all: ['lib', 'test'],
     },
 
-    clean: ['dist'],
+    clean: {
+      all: ['dist'],
+    },
 
     babel: {
       all: {
@@ -29,7 +31,10 @@ module.exports = function register(grunt) {
         options: {
           timeout: 500,
         },
-        src: ['test/**/*.test.js'],
+        src: [
+          'test/boot.js',
+          'test/**/*.test.js',
+        ],
       },
     },
 
