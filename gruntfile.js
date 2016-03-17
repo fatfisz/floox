@@ -1,29 +1,28 @@
-/*
- * floox
- * https://github.com/fatfisz/floox
- *
- * Copyright (c) 2015 FatFisz
- * Licensed under the MIT license.
- */
-
 'use strict';
 
+const loadGruntTasks = require('load-grunt-tasks');
+
+
 module.exports = function register(grunt) {
-  require('load-grunt-tasks')(grunt);
+  loadGruntTasks(grunt);
 
   grunt.initConfig({
-
     eslint: {
-      options: {
-        useEslintrc: false,
-      },
+      all: ['lib', 'test'],
+    },
+
+    clean: {
+      all: ['dist'],
+    },
+
+    babel: {
       all: {
-        options: { configFile: '.eslintrc' },
-        src: ['lib', 'gruntfile.js'],
-      },
-      test: {
-        options: { configFile: 'test/.eslintrc' },
-        src: ['test'],
+        files: [{
+          expand: true,
+          cwd: 'lib/',
+          src: '**/*.js',
+          dest: 'dist/',
+        }],
       },
     },
 
@@ -32,13 +31,17 @@ module.exports = function register(grunt) {
         options: {
           timeout: 500,
         },
-        src: ['test/**/*.test.js'],
+        src: [
+          'test/boot.js',
+          'test/**/*.test.js',
+        ],
       },
     },
 
   });
 
-  grunt.registerTask('test', ['mochaTest']);
+  grunt.registerTask('prepublish', ['eslint', 'clean', 'babel']);
+  grunt.registerTask('test', ['prepublish', 'mochaTest']);
 
-  grunt.registerTask('default', ['eslint', 'test']);
+  grunt.registerTask('default', ['test']);
 };

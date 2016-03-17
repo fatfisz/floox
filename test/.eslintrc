@@ -1,6 +1,12 @@
 {
   "extends": "../.eslintrc",
+  "parserOptions": {
+    "sourceType": "script"
+  },
   "env": {
     "mocha": true
+  },
+  "rules": {
+    "prefer-spread": 0
   }
 }

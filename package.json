@@ -1,12 +1,14 @@
 {
   "name": "floox",
-  "version": "1.0.3",
-  "main": "floox.js",
-  "description": "A nice framework for Flux",
+  "version": "2.0.0-rc1",
+  "description": "Simple global state handling for React, inspired by Flux",
+  "main": "dist/index.js",
   "keywords": [
+    "actions",
+    "components",
     "flux",
-    "store",
-    "actions"
+    "react",
+    "state"
   ],
   "homepage": "https://github.com/fatfisz/floox",
   "repository": "https://github.com/fatfisz/floox.git",
@@ -16,22 +18,37 @@
   },
   "license": "MIT",
   "scripts": {
-    "test": "grunt"
+    "prepublish": "grunt prepublish",
+    "test": "grunt test"
   },
+  "dependencies": {},
   "devDependencies": {
+    "babel": "^5.8.35",
+    "eslint": "^2.2.0",
     "grunt": "^0.4.5",
+    "grunt-babel": "^5.0.3",
     "grunt-cli": "^0.1.13",
-    "grunt-eslint": "^16.0.0",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-eslint": "^18.0.0",
     "grunt-mocha-test": "^0.12.7",
     "jsdom": "^8.1.0",
-    "load-grunt-tasks": "^3.2.0",
-    "mocha": "^2.2.5",
-    "react": "^0.13.3",
-    "should": "^7.0.2"
+    "load-grunt-tasks": "^3.4.1",
+    "mocha": "^2.4.5",
+    "react": "^0.14.7",
+    "react-addons-test-utils": "^0.14.7",
+    "react-dom": "^0.14.7",
+    "should": "^8.2.2",
+    "should-sinon": "0.0.5",
+    "sinon": "^2.0.0-pre"
   },
-  "dependencies": {
-    "flux": "^2.0.3",
-    "ns-props": "^1.0.0",
-    "object-assign": "^3.0.0"
+  "babel": {
+    "loose": [
+      "es6.destructuring",
+      "es6.properties.computed",
+      "es6.spread"
+    ],
+    "optional": [
+      "es7.decorators"
+    ]
   }
 }
