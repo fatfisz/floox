@@ -48,7 +48,7 @@ describe('FlooxProvider', () => {
       }
 
       should(global.console.error).be.calledWith(
-        'Warning: Failed propType: Required prop `config` was not specified in `FlooxProvider`.');
+        'Warning: Failed propType: Required prop `floox` was not specified in `FlooxProvider`.');
     });
 
     it('should warn if the required props are missing', () => {
@@ -61,12 +61,12 @@ describe('FlooxProvider', () => {
       }
 
       should(global.console.error).be.calledWith(
-        'Warning: Failed propType: Required prop `config` was not specified in `FlooxProvider`.');
+        'Warning: Failed propType: Required prop `floox` was not specified in `FlooxProvider`.');
     });
 
-    it('should warn if the required `getInitialState` method is missing', () => {
+    it('should warn if the `floox` prop is not an instance of the Floox class', () => {
       const element = React.createElement(FlooxProvider, {
-        config: {},
+        floox: {},
       });
 
       try {
@@ -76,7 +76,7 @@ describe('FlooxProvider', () => {
       }
 
       should(global.console.error).be.calledWith(
-        'Warning: Failed propType: Required prop `config.getInitialState` was not specified in `FlooxProvider`.');
+        'Warning: Failed propType: Invalid prop `floox` of type `Object` supplied to `FlooxProvider`, expected instance of `Floox`.');
     });
 
     it('should throw if the children are missing', () => {
@@ -117,35 +117,25 @@ describe('FlooxProvider', () => {
   });
 
   describe('instance', () => {
-    const instanceMethodName = 'specialMethod';
+    let floox;
     let instance;
 
     beforeEach(() => {
-      const element = React.createElement(FlooxProvider, {
-        config: {
-          getInitialState() {},
-          [instanceMethodName]() {},
-        },
-      }, React.DOM.div());
+      floox = new Floox({
+        getInitialState() {},
+      });
+      const element = React.createElement(FlooxProvider, { floox }, React.DOM.div());
 
       renderer.render(element);
       // Use `renderer.getMountedInstance` when it is available
       instance = renderer._instance._instance;
     });
 
-    it('should have the `floox` property', () => {
-      should(instance.floox).be.instanceOf(Floox);
-    });
-
-    it('should use passed config for the `floox` property', () => {
-      should(instance.floox).have.property(instanceMethodName);
-    });
-
     it('should return the proper child context', () => {
       const childContext = instance.getChildContext();
 
       should(childContext).be.eql({
-        floox: instance.floox,
+        floox,
       });
     });
   });

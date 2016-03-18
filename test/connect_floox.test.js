@@ -1,5 +1,6 @@
 'use strict';
 
+const React = require('react');
 const ReactTestUtils = require('react-addons-test-utils');
 const should = require('should/as-function');
 const sinon = require('sinon');
@@ -8,20 +9,9 @@ const connectFloox = require('../dist/connect_floox');
 
 
 describe('connectFloox', () => {
-  let React;
   let renderer;
 
   beforeEach(() => {
-    // React caches info about warnings, so to properly test them the module
-    // cache has to be flushed.
-    // See: https://github.com/facebook/react/issues/4302
-    Object.keys(require.cache).forEach((key) => {
-      delete require.cache[key];
-    });
-
-    // eslint-disable-next-line global-require
-    React = require('react');
-
     // Stub to prevent writing messages to stdout.
     sinon.stub(global.console, 'error');
 

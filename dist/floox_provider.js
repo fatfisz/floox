@@ -18,23 +18,16 @@ var FlooxProvider = _react2['default'].createClass({
   displayName: 'FlooxProvider',
 
   propTypes: {
-    config: _react2['default'].PropTypes.shape({
-      getInitialState: _react2['default'].PropTypes.func.isRequired
-    }).isRequired
+    floox: _react2['default'].PropTypes.instanceOf(_floox_class2['default']).isRequired
   },
 
   childContextTypes: {
     floox: _react2['default'].PropTypes.object.isRequired
   },
 
-  componentWillMount: function componentWillMount() {
-    // Compute once before mounting.
-    this.floox = new _floox_class2['default'](this.props.config);
-  },
-
   getChildContext: function getChildContext() {
     return {
-      floox: this.floox
+      floox: this.props.floox
     };
   },
 

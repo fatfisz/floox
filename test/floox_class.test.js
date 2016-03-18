@@ -30,13 +30,18 @@ describe('Floox (class)', () => {
       });
     });
 
+    it('should throw when the `config` argument is missing', () => {
+      should(() => {
+        // eslint-disable-next-line no-new
+        new Floox();
+      }).throw('The "config" argument is missing.');
+    });
+
     it('should throw when the `getInitialState` method is missing', () => {
       should(() => {
         // eslint-disable-next-line no-new
         new Floox({});
-      }).throw(TypeError, {
-        message: 'getInitialState is not a function',
-      });
+      }).throw('The config is missing the "getInitialState" method.');
     });
 
     it('should use the default `combineState` method if it is missing from the config', () => {

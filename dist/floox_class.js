@@ -37,11 +37,19 @@ var Floox = (function () {
   function Floox(config) {
     _classCallCheck(this, Floox);
 
+    if (process.env.NODE_ENV !== 'production' && !config) {
+      throw new Error('The "config" argument is missing.');
+    }
+
     var getInitialState = config.getInitialState;
     var _config$combineState = config.combineState;
     var combineState = _config$combineState === undefined ? _default_combine_state2['default'] : _config$combineState;
 
     var rest = _objectWithoutProperties(config, ['getInitialState', 'combineState']);
+
+    if (process.env.NODE_ENV !== 'production' && !getInitialState) {
+      throw new Error('The config is missing the "getInitialState" method.');
+    }
 
     privateData.set(this, {
       state: getInitialState(),
