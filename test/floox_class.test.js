@@ -3,11 +3,16 @@
 const should = require('should/as-function');
 const sinon = require('sinon');
 
-const defaultCombineState = require('../dist/default_combine_state');
-const Floox = require('../dist/floox_class');
-
 
 describe('Floox (class)', () => {
+  let defaultCombineState;
+  let Floox;
+
+  beforeEach(() => {
+    defaultCombineState = require('../dist/default_combine_state');
+    Floox = require('../dist/floox_class');
+  });
+
   it('should export a function that accepts one argument', () => {
     should(Floox).be.a.Function();
     should(Floox).have.a.length(1);

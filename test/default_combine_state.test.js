@@ -3,10 +3,14 @@
 const should = require('should/as-function');
 const sinon = require('sinon');
 
-const defaultCombineState = require('../dist/default_combine_state');
-
 
 describe('defaultCombineState', () => {
+  let defaultCombineState;
+
+  beforeEach(() => {
+    defaultCombineState = require('../dist/default_combine_state');
+  });
+
   it('should return the partial state if the type of the current state is not `object`', () => {
     const result = defaultCombineState('not_object', 'partial');
 

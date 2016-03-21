@@ -5,14 +5,17 @@ const ReactTestUtils = require('react-addons-test-utils');
 const should = require('should/as-function');
 const sinon = require('sinon');
 
-const connectFloox = require('../dist/connect_floox');
-const Floox = require('../dist/floox_class');
-
 
 describe('connectFloox', () => {
+  let connectFloox;
+  let Floox;
   let renderer;
 
   beforeEach(() => {
+    connectFloox = require('../dist/connect_floox');
+    Floox = require('../dist/floox_class');
+
+
     // Stub to prevent writing messages to stdout.
     sinon.stub(global.console, 'error');
 

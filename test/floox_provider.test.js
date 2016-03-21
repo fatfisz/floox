@@ -1,36 +1,30 @@
 'use strict';
 
-const React = require('react');
 const ReactTestUtils = require('react-addons-test-utils');
 const should = require('should/as-function');
 const sinon = require('sinon');
 
-const Floox = require('../dist/floox_class');
-const FlooxProvider = require('../dist/floox_provider');
-
 
 describe('FlooxProvider', () => {
-  const Test = React.createFactory('test');
+  let React;
+  let Floox;
+  let FlooxProvider;
   let renderer;
+  let Test;
 
   beforeEach(() => {
+    React = require('react');
+
+    Floox = require('../dist/floox_class');
+    FlooxProvider = require('../dist/floox_provider');
+
+
     renderer = ReactTestUtils.createRenderer();
+    Test = React.createFactory('test');
   });
 
   describe('instantiating', () => {
-    let React;
-
     beforeEach(() => {
-      // React caches info about warnings, so to properly test them the module
-      // cache has to be flushed.
-      // See: https://github.com/facebook/react/issues/4302
-      Object.keys(require.cache).forEach((key) => {
-        delete require.cache[key];
-      });
-
-      // eslint-disable-next-line global-require
-      React = require('react');
-
       // Stub to prevent writing messages to stdout.
       sinon.stub(global.console, 'error');
     });
