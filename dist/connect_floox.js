@@ -18,7 +18,7 @@ function getComponentName(Component) {
     return Component;
   }
 
-  return Component.displayName || 'anonymous';
+  return Component.displayName || Component.name || 'anonymous';
 }
 
 function connectFloox(Component, mapping) {
