@@ -3,11 +3,12 @@
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 exports['default'] = connectFloox;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 var _react = require('react');
 
@@ -23,6 +24,23 @@ function getComponentName(Component) {
   }
 
   return Component.displayName || Component.name || 'anonymous';
+}
+
+function getState(floox, mapping, keys, passFloox) {
+  var state = floox.state;
+
+  var result = {};
+
+  keys.forEach(function (key) {
+    var targetKey = mapping[key];
+    result[key] = state[targetKey];
+  });
+
+  if (passFloox) {
+    result.floox = floox;
+  }
+
+  return result;
 }
 
 function connectFloox(Component, mapping) {
@@ -67,6 +85,10 @@ function connectFloox(Component, mapping) {
       floox: _react2['default'].PropTypes.instanceOf(_floox_class2['default']).isRequired
     },
 
+    getInitialState: function getInitialState() {
+      return getState(this.context.floox, mapping, keys, passFloox);
+    },
+
     componentDidMount: function componentDidMount() {
       this.context.floox.addChangeListener(this.flooxUpdate);
     },
@@ -75,26 +97,43 @@ function connectFloox(Component, mapping) {
       this.context.floox.removeChangeListener(this.flooxUpdate);
     },
 
-    render: function render() {
-      var floox = this.context.floox;
-      var state = floox.state;
+    shouldComponentUpdate: function shouldComponentUpdate(nextProps, nextState) {
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
 
-      var props = _objectWithoutProperties(this.props, []);
+      try {
+        for (var _iterator = keys[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var key = _step.value;
 
-      keys.forEach(function (key) {
-        var targetKey = mapping[key];
-        props[key] = state[targetKey];
-      });
-
-      if (passFloox) {
-        props.floox = floox;
+          if (this.state[key] !== nextState[key]) {
+            return true;
+          }
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator['return']) {
+            _iterator['return']();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
       }
 
-      return _react2['default'].createElement(Component, props);
+      return false;
+    },
+
+    render: function render() {
+      return _react2['default'].createElement(Component, _extends({}, this.props, this.state));
     },
 
     flooxUpdate: function flooxUpdate(callback) {
-      this.forceUpdate(callback);
+      this.setState(getState(this.context.floox, mapping, keys, passFloox), callback);
     }
   });
 }

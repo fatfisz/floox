@@ -6,6 +6,7 @@ const should = require('should/as-function');
 const sinon = require('sinon');
 
 const connectFloox = require('../dist/connect_floox');
+const Floox = require('../dist/floox_class');
 
 
 describe('connectFloox', () => {
@@ -44,6 +45,17 @@ describe('connectFloox', () => {
     should(() => {
       connectFloox('test', null);
     }).throw('Expected mapping to be an object.');
+  });
+
+  it('should render the passed component', () => {
+    const type = `some type ${Math.random()}`;
+    const Component = connectFloox(type, {});
+    const element = React.createElement(Component, {});
+
+    renderer.render(element, { floox: {} });
+    const output = renderer.getRenderOutput();
+
+    should(output.type).be.equal(type);
   });
 
   it('should pass the props from the Floox state', () => {
@@ -118,7 +130,7 @@ describe('connectFloox', () => {
       'Warning: The value of the object property should be either "true" or a string, got [object Object].');
   });
 
-  it('should have the `flooxUpdate` method that forces update', () => {
+  it('should have the `flooxUpdate` method that updates the state', () => {
     const floox = {
       state: {},
     };
@@ -132,12 +144,12 @@ describe('connectFloox', () => {
     should(instance.flooxUpdate).be.a.Function();
     should(instance.flooxUpdate).have.length(1);
 
-    sinon.spy(instance, 'forceUpdate');
+    sinon.spy(instance, 'setState');
 
     instance.flooxUpdate(callback);
 
-    should(instance.forceUpdate).be.calledOnce();
-    should(instance.forceUpdate).be.calledWithExactly(callback);
+    should(instance.setState).be.calledOnce();
+    should(instance.setState).be.calledWithExactly({}, callback);
   });
 
   it('should add the listener on mount', () => {
@@ -172,5 +184,101 @@ describe('connectFloox', () => {
 
     should(removeChangeListener).be.calledOnce();
     should(removeChangeListener).be.calledWithExactly(instance.flooxUpdate);
+  });
+
+  describe('state updates', () => {
+    const firstObject = new (function First() {});
+    const secondObject = new (function Second() {});
+    let floox;
+    let connector;
+
+    beforeEach(() => {
+      floox = new Floox({
+        getInitialState() {
+          return {
+            mappedString: 'first',
+            mappedObject: firstObject,
+            notMappedString: 'first',
+            notMappedObject: firstObject,
+          };
+        },
+      });
+      const FlooxProvider = React.createClass({
+        childContextTypes: {
+          floox: React.PropTypes.instanceOf(Floox).isRequired,
+        },
+
+        getChildContext() {
+          return {
+            floox,
+          };
+        },
+
+        render() {
+          return this.props.children;
+        },
+      });
+      const Component = connectFloox('div', {
+        mappedString: true,
+        mappedObject: true,
+        floox: true,
+      });
+      const element = React.createElement(Component, {});
+      const provider = React.createElement(FlooxProvider, {}, element);
+      const tree = ReactTestUtils.renderIntoDocument(provider);
+      connector = ReactTestUtils.findAllInRenderedTree(tree, (component) =>
+        component.flooxUpdate
+      )[0];
+
+      should(connector).be.ok();
+
+      sinon.spy(connector, 'render');
+    });
+
+    it('should not update when nothing changes', () => {
+      floox.setState({});
+
+      should(connector.render).not.be.called();
+    });
+
+    it('should not update when a property named "floox" is set', () => {
+      floox.setState({
+        floox: 'not today',
+      });
+
+      should(connector.render).not.be.called();
+    });
+
+    it('should update when a property that\'s mapped changes (string)', () => {
+      floox.setState({
+        mappedString: 'second',
+      });
+
+      should(connector.render).be.called();
+    });
+
+    it('should not update when a property that\'s not mapped changes (string)', () => {
+      floox.setState({
+        notMappedString: 'second',
+      });
+
+      should(connector.render).not.be.called();
+    });
+
+    it('should update when a property that\'s mapped changes (object)', () => {
+      floox.setState({
+        mappedObject: secondObject,
+      });
+
+      should(connector.render).be.called();
+    });
+
+    it('should not update when a property that\'s not mapped changes (object)', () => {
+      floox.setState({
+        notMappedObject: secondObject,
+      });
+
+      should(connector.render).not.be.called();
+    });
   });
 });
