@@ -13,6 +13,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _floox_class = require('./floox_class');
+
+var _floox_class2 = _interopRequireDefault(_floox_class);
+
 function getComponentName(Component) {
   if (typeof Component === 'string') {
     return Component;
@@ -60,7 +64,7 @@ function connectFloox(Component, mapping) {
     displayName: 'FlooxConnector<' + componentName + '>',
 
     contextTypes: {
-      floox: _react2['default'].PropTypes.object.isRequired
+      floox: _react2['default'].PropTypes.instanceOf(_floox_class2['default']).isRequired
     },
 
     componentDidMount: function componentDidMount() {

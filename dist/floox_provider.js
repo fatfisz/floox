@@ -22,7 +22,7 @@ var FlooxProvider = _react2['default'].createClass({
   },
 
   childContextTypes: {
-    floox: _react2['default'].PropTypes.object.isRequired
+    floox: _react2['default'].PropTypes.instanceOf(_floox_class2['default']).isRequired
   },
 
   getChildContext: function getChildContext() {
