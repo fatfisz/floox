@@ -43,12 +43,11 @@
   },
   "babel": {
     "loose": [
+      "es6.classes",
       "es6.destructuring",
+      "es6.forOf",
       "es6.properties.computed",
       "es6.spread"
-    ],
-    "optional": [
-      "es7.decorators"
     ]
   }
 }

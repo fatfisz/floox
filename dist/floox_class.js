@@ -64,57 +64,54 @@ var Floox = (function () {
     Object.assign(this, rest);
   }
 
+  Floox.prototype.setState = function setState(partialState, callback) {
+    var data = privateData.get(this);
+
+    if (data.isSetting) {
+      throw new Error('Cannot change Floox state in the middle of state propagation.');
+    }
+
+    data.state = data.combineState(data.state, partialState);
+
+    var listenersLeft = data.listeners.size;
+
+    if (listenersLeft === 0) {
+      if (callback) {
+        callback();
+      }
+      return;
+    }
+
+    data.isSetting = true;
+    data.listenersLeft = listenersLeft;
+    data.currentCallback = callback;
+
+    data.listeners.forEach(function (listener) {
+      listener(data.listenersCallback);
+    });
+  };
+
+  Floox.prototype.addChangeListener = function addChangeListener(listener) {
+    var data = privateData.get(this);
+
+    if (data.isSetting) {
+      throw new Error('Cannot add listeners in the middle of state propagation.');
+    }
+
+    data.listeners.add(listener);
+  };
+
+  Floox.prototype.removeChangeListener = function removeChangeListener(listener) {
+    var data = privateData.get(this);
+
+    if (data.isSetting) {
+      throw new Error('Cannot remove listeners in the middle of state propagation.');
+    }
+
+    privateData.get(this).listeners['delete'](listener);
+  };
+
   _createClass(Floox, [{
-    key: 'setState',
-    value: function setState(partialState, callback) {
-      var data = privateData.get(this);
-
-      if (data.isSetting) {
-        throw new Error('Cannot change Floox state in the middle of state propagation.');
-      }
-
-      data.state = data.combineState(data.state, partialState);
-
-      var listenersLeft = data.listeners.size;
-
-      if (listenersLeft === 0) {
-        if (callback) {
-          callback();
-        }
-        return;
-      }
-
-      data.isSetting = true;
-      data.listenersLeft = listenersLeft;
-      data.currentCallback = callback;
-
-      data.listeners.forEach(function (listener) {
-        listener(data.listenersCallback);
-      });
-    }
-  }, {
-    key: 'addChangeListener',
-    value: function addChangeListener(listener) {
-      var data = privateData.get(this);
-
-      if (data.isSetting) {
-        throw new Error('Cannot add listeners in the middle of state propagation.');
-      }
-
-      data.listeners.add(listener);
-    }
-  }, {
-    key: 'removeChangeListener',
-    value: function removeChangeListener(listener) {
-      var data = privateData.get(this);
-
-      if (data.isSetting) {
-        throw new Error('Cannot remove listeners in the middle of state propagation.');
-      }
-
-      privateData.get(this).listeners['delete'](listener);
-    }
-  }, {
     key: 'state',
     get: function get() {
       return privateData.get(this).state;
