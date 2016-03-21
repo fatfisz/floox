@@ -1,6 +1,7 @@
 'use strict';
 
 const should = require('should/as-function');
+const sinon = require('sinon');
 
 const defaultCombineState = require('../dist/default_combine_state');
 
@@ -55,5 +56,14 @@ describe('defaultCombineState', () => {
       a: 1,
       b: 2,
     });
+  });
+
+  it('should call the partial state with the current state if it\'s a function', () => {
+    const partial = sinon.stub().returns('combined state');
+    const result = defaultCombineState('current state', partial);
+
+    should(partial).be.calledOnce();
+    should(partial).be.calledWithExactly('current state');
+    should(result).be.equal('combined state');
   });
 });

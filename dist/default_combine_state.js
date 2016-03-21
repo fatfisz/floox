@@ -6,6 +6,10 @@ Object.defineProperty(exports, '__esModule', {
 exports['default'] = defaultCombineState;
 
 function defaultCombineState(currentState, partialState) {
+  if (typeof partialState === 'function') {
+    return partialState(currentState);
+  }
+
   if (typeof currentState !== 'object' || typeof partialState !== 'object' || currentState === null) {
     return partialState;
   }
