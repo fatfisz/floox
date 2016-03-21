@@ -134,7 +134,7 @@ describe('connectFloox', () => {
     const floox = {
       state: {},
     };
-    const Component = connectFloox('div', {});
+    const Component = connectFloox('test', {});
     const element = React.createElement(Component, {});
     const callback = () => {};
 
@@ -157,7 +157,7 @@ describe('connectFloox', () => {
     const floox = {
       addChangeListener,
     };
-    const Component = connectFloox('div', {});
+    const Component = connectFloox('test', {});
     const element = React.createElement(Component, {});
 
     renderer.render(element, { floox });
@@ -174,7 +174,7 @@ describe('connectFloox', () => {
     const floox = {
       removeChangeListener,
     };
-    const Component = connectFloox('div', {});
+    const Component = connectFloox('test', {});
     const element = React.createElement(Component, {});
 
     renderer.render(element, { floox });
@@ -218,7 +218,7 @@ describe('connectFloox', () => {
           return this.props.children;
         },
       });
-      const Component = connectFloox('div', {
+      const Component = connectFloox('test', {
         mappedString: true,
         mappedObject: true,
         floox: true,

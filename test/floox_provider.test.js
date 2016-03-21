@@ -10,6 +10,7 @@ const FlooxProvider = require('../dist/floox_provider');
 
 
 describe('FlooxProvider', () => {
+  const Test = React.createFactory('test');
   let renderer;
 
   beforeEach(() => {
@@ -96,7 +97,7 @@ describe('FlooxProvider', () => {
         config: {
           getInitialState() {},
         },
-      }, React.DOM.div(), React.DOM.div());
+      }, Test(), Test());
 
       should(() => {
         renderer.render(element);
@@ -108,7 +109,7 @@ describe('FlooxProvider', () => {
         config: {
           getInitialState() {},
         },
-      }, React.DOM.div());
+      }, Test());
 
       should(() => {
         renderer.render(element);
@@ -124,7 +125,7 @@ describe('FlooxProvider', () => {
       floox = new Floox({
         getInitialState() {},
       });
-      const element = React.createElement(FlooxProvider, { floox }, React.DOM.div());
+      const element = React.createElement(FlooxProvider, { floox }, Test());
 
       renderer.render(element);
       // Use `renderer.getMountedInstance` when it is available
