@@ -5,7 +5,7 @@ const should = require('should/as-function');
 const sinon = require('sinon');
 
 
-describe('FlooxProvider', () => {
+describe('FlooxProvider component', () => {
   let React;
   let Floox;
   let FlooxProvider;

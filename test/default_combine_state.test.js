@@ -4,7 +4,7 @@ const should = require('should/as-function');
 const sinon = require('sinon');
 
 
-describe('defaultCombineState', () => {
+describe('defaultCombineState function', () => {
   let defaultCombineState;
 
   beforeEach(() => {

@@ -1,16 +1,27 @@
 'use strict';
 
+const mockery = require('mockery');
 const should = require('should/as-function');
 const sinon = require('sinon');
 
 
-describe('Floox (class)', () => {
+describe('Floox class', () => {
+  let applyChanges;
   let defaultCombineState;
   let Floox;
 
   beforeEach(() => {
-    defaultCombineState = require('../dist/default_combine_state');
+    applyChanges = sinon.spy();
+    defaultCombineState = 'default combine state';
+
+    mockery.registerMock('./apply_changes', applyChanges);
+    mockery.registerMock('./default_combine_state', defaultCombineState);
+
     Floox = require('../dist/floox_class');
+  });
+
+  afterEach(() => {
+    mockery.deregisterAll();
   });
 
   it('should export a function that accepts one argument', () => {
@@ -88,15 +99,27 @@ describe('Floox (class)', () => {
       should(WeakMap.prototype.set).be.calledOnce();
 
       const data = WeakMap.prototype.set.args[0][1];
+      should(data).have.keys(
+        'state',
+        'combineState',
+        'listeners',
+        'listenersLeft',
+        'batchCount',
+        'isSetting',
+        'partialStates',
+        'callbacks'
+      );
       should(data).have.properties({
         state: 'initial state',
-        isSetting: false,
         listenersLeft: 0,
-        currentCallback: null,
+        batchCount: 0,
+        isSetting: false,
+        partialStates: [],
+        callbacks: [],
       });
 
       should(data.listeners).be.instanceOf(Set);
-      should(data.listenersCallback).be.a.Function();
+      should(data.listeners.size).be.equal(0);
     });
 
     it('should assign the properties of the config object to the instance', () => {
@@ -147,49 +170,118 @@ describe('Floox (class)', () => {
       should(state).be.equal('current state');
     });
 
-    it('should throw if trying to use `setState` when the `isSetting` flag is on', () => {
-      data.isSetting = true;
+    describe('setState', () => {
+      it('should throw if calling when the `isSetting` flag is on', () => {
+        data.isSetting = true;
 
-      should(() => {
-        instance.setState();
-      }).throw('Cannot change Floox state in the middle of state propagation.');
-    });
-
-    it('should call the callback passed to `setState` and set the private data properly', () => {
-      const partial = {};
-      const callback = sinon.spy();
-      const combineState = sinon.stub().returns('combination result');
-      const state = {};
-      const listenersCallback = 'listeners callback';
-      // Those listeners do nothing, and so the listener count should be left
-      // intact and the `isSetting` flag should be on.
-      const listener = sinon.spy();
-      const listener2 = sinon.spy();
-      const listener3 = sinon.spy();
-
-      data.state = state;
-      data.combineState = combineState;
-      data.listeners = new Set([listener, listener2, listener3]);
-      data.listenersCallback = listenersCallback;
-
-      instance.setState(partial, callback);
-
-      should(combineState).be.calledOnce();
-      should(combineState).be.calledWithExactly(state, partial);
-
-      should(data).have.properties({
-        state: 'combination result',
-        isSetting: true,
-        listenersLeft: 3,
-        currentCallback: callback,
+        should(() => {
+          instance.setState();
+        }).throw('Cannot change Floox state in the middle of state propagation.');
       });
 
-      should(listener).be.calledOnce();
-      should(listener).be.calledWithExactly(listenersCallback);
-      should(listener2).be.calledOnce();
-      should(listener2).be.calledWithExactly(listenersCallback);
-      should(listener3).be.calledOnce();
-      should(listener3).be.calledWithExactly(listenersCallback);
+      it('should add `undefined` to the state queue if the partial state is missing', () => {
+        data.partialStates = [];
+        instance.setState();
+
+        // eslint-disable-next-line no-undefined
+        should(data.partialStates).be.eql([undefined]);
+      });
+
+      it('should add the partial state to the state queue', () => {
+        data.partialStates = [];
+        instance.setState('partial state');
+
+        should(data.partialStates).be.eql(['partial state']);
+      });
+
+      it('should not add the callback to the callback queue if it\'s missing', () => {
+        data.partialStates = [];
+        data.callbacks = [];
+        instance.setState(null);
+
+        should(data.callbacks).be.eql([]);
+      });
+
+      it('should add the callback to the callback queue if it\'s present', () => {
+        data.partialStates = [];
+        data.callbacks = [];
+        instance.setState(null, 'callback');
+
+        should(data.callbacks).be.eql(['callback']);
+      });
+
+      it('should not call `applyChanges` if the batch count is not 0', () => {
+        data.batchCount = 1;
+        data.partialStates = [];
+        instance.setState();
+
+        should(applyChanges).not.be.called();
+      });
+
+      it('should call `applyChanges` with the private data if the batch count is 0', () => {
+        data.batchCount = 0;
+        data.partialStates = [];
+        instance.setState();
+
+        should(applyChanges).be.calledOnce();
+        should(applyChanges).be.calledWithExactly(data);
+      });
+    });
+
+    describe('batch', () => {
+      it('should throw if calling with a non-function as a first argument', () => {
+        should(() => {
+          instance.batch();
+        }).throw('Expected the first argument to be a function.');
+      });
+
+      it('should throw if calling when the `isSetting` flag is on', () => {
+        data.isSetting = true;
+
+        should(() => {
+          instance.batch(() => {});
+        }).throw('Cannot change Floox state in the middle of state propagation.');
+      });
+
+      it('should update the batch count and call the first argument in between', () => {
+        function changes() {
+          should(data.batchCount).be.equal(1);
+        }
+
+        data.batchCount = 0;
+
+        instance.batch(changes);
+        should(data.batchCount).be.equal(0);
+      });
+
+      it('should not add the callback to the callback queue if it\'s missing', () => {
+        data.callbacks = [];
+        instance.batch(() => {});
+
+        should(data.callbacks).be.eql([]);
+      });
+
+      it('should add the callback to the callback queue if it\'s present', () => {
+        data.callbacks = [];
+        instance.batch(() => {}, 'callback');
+
+        should(data.callbacks).be.eql(['callback']);
+      });
+
+      it('should not call `applyChanges` if the batch count is not 0', () => {
+        data.batchCount = 1;
+        instance.batch(() => {});
+
+        should(applyChanges).not.be.called();
+      });
+
+      it('should call `applyChanges` with the private data if the batch count is 0', () => {
+        data.batchCount = 0;
+        instance.batch(() => {});
+
+        should(applyChanges).be.calledOnce();
+        should(applyChanges).be.calledWithExactly(data);
+      });
     });
 
     it('should allow adding listeners', () => {
@@ -203,21 +295,6 @@ describe('Floox (class)', () => {
       should(data.listeners.has('listener')).be.true();
     });
 
-    it('should not allow adding listeners when the `isSetting` flag is on', () => {
-      data.combineState = () => {};
-      data.listeners = new Set([() => {}]);
-
-      should(data.listeners).have.property('size', 1);
-
-      instance.setState();
-
-      should(() => {
-        instance.addChangeListener('listener');
-      }).throw('Cannot add listeners in the middle of state propagation.');
-
-      should(data.listeners).have.property('size', 1);
-    });
-
     it('should allow removing listeners', () => {
       data.listeners = new Set(['listener']);
 
@@ -227,100 +304,6 @@ describe('Floox (class)', () => {
       instance.removeChangeListener('listener');
 
       should(data.listeners).have.property('size', 0);
-    });
-
-    it('should not allow remove listeners when the `isSetting` flag is on', () => {
-      data.combineState = () => {};
-      data.listeners = new Set([() => {}]);
-
-      should(data.listeners).have.property('size', 1);
-
-      instance.setState();
-
-      should(() => {
-        instance.removeChangeListener('listener');
-      }).throw('Cannot remove listeners in the middle of state propagation.');
-
-      should(data.listeners).have.property('size', 1);
-    });
-  });
-
-  describe('setting state', () => {
-    let instance;
-
-    beforeEach(() => {
-      instance = new Floox({
-        getInitialState() {
-          return {};
-        },
-      });
-    });
-
-    it('should not allow setting the state until the previous setting ends', () => {
-      const callback = sinon.spy();
-
-      instance.addChangeListener(() => {});
-      instance.addChangeListener(() => {});
-      instance.addChangeListener(() => {});
-      instance.setState(null, callback);
-
-      should(callback).not.be.called();
-      should(() => {
-        instance.setState(null, callback);
-      }).throw('Cannot change Floox state in the middle of state propagation.');
-    });
-
-    it('should allow setting the state again immediately if there are no listeners', () => {
-      const callback = sinon.spy();
-
-      instance.setState(null, callback);
-
-      should(callback).be.calledOnce();
-      should(() => {
-        instance.setState(null, callback);
-      }).not.throw();
-    });
-
-    it('should allow setting the state if the previous setting has finished (sync)', () => {
-      const callback = sinon.spy();
-
-      instance.addChangeListener((callback) => {
-        callback();
-      });
-      instance.addChangeListener((callback) => {
-        callback();
-      });
-      instance.addChangeListener((callback) => {
-        callback();
-      });
-      instance.setState(null, callback);
-
-      should(callback).be.calledOnce();
-      should(() => {
-        instance.setState(null, callback);
-      }).not.throw();
-    });
-
-    it('should allow setting the state if the previous setting has finished (async)', (done) => {
-      const callback = sinon.spy(() => {
-        should(() => {
-          instance.setState(null);
-        }).not.throw();
-
-        // Done will be called only once iff the callback is called once.
-        done();
-      });
-
-      instance.addChangeListener((callback) => {
-        setTimeout(callback);
-      });
-      instance.addChangeListener((callback) => {
-        setTimeout(callback);
-      });
-      instance.addChangeListener((callback) => {
-        setTimeout(callback);
-      });
-      instance.setState(null, callback);
     });
   });
 });

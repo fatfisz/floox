@@ -15,6 +15,10 @@ describe('index', () => {
     floox = require('../dist');
   });
 
+  afterEach(() => {
+    mockery.deregisterAll();
+  });
+
   it('should have appropriate exports', () => {
     should(floox).have.keys('connectFloox', 'Floox', 'FlooxProvider');
     should(floox.connectFloox).be.equal(

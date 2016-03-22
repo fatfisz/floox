@@ -12,26 +12,15 @@ function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in ob
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
+var _apply_changes = require('./apply_changes');
+
+var _apply_changes2 = _interopRequireDefault(_apply_changes);
+
 var _default_combine_state = require('./default_combine_state');
 
 var _default_combine_state2 = _interopRequireDefault(_default_combine_state);
 
 var privateData = new WeakMap();
-
-function listenersCallback() {
-  var data = privateData.get(this);
-
-  data.listenersLeft -= 1;
-  if (data.listenersLeft !== 0) {
-    return;
-  }
-
-  data.isSetting = false;
-
-  if (data.currentCallback) {
-    data.currentCallback();
-  }
-}
 
 var Floox = (function () {
   function Floox(config) {
@@ -55,10 +44,11 @@ var Floox = (function () {
       state: getInitialState(),
       combineState: combineState,
       listeners: new Set(),
-      isSetting: false,
       listenersLeft: 0,
-      currentCallback: null,
-      listenersCallback: listenersCallback.bind(this)
+      batchCount: 0,
+      isSetting: false,
+      partialStates: [],
+      callbacks: []
     });
 
     Object.assign(this, rest);
@@ -67,47 +57,48 @@ var Floox = (function () {
   Floox.prototype.setState = function setState(partialState, callback) {
     var data = privateData.get(this);
 
-    if (data.isSetting) {
+    if (process.env.NODE_ENV !== 'production' && data.isSetting) {
       throw new Error('Cannot change Floox state in the middle of state propagation.');
     }
 
-    data.state = data.combineState(data.state, partialState);
-
-    var listenersLeft = data.listeners.size;
-
-    if (listenersLeft === 0) {
-      if (callback) {
-        callback();
-      }
-      return;
+    data.partialStates.push(partialState);
+    if (callback) {
+      data.callbacks.push(callback);
     }
 
-    data.isSetting = true;
-    data.listenersLeft = listenersLeft;
-    data.currentCallback = callback;
+    if (data.batchCount === 0) {
+      (0, _apply_changes2['default'])(data);
+    }
+  };
 
-    data.listeners.forEach(function (listener) {
-      listener(data.listenersCallback);
-    });
+  Floox.prototype.batch = function batch(changes, callback) {
+    var data = privateData.get(this);
+
+    if (process.env.NODE_ENV !== 'production' && typeof changes !== 'function') {
+      throw new Error('Expected the first argument to be a function.');
+    }
+
+    if (process.env.NODE_ENV !== 'production' && data.isSetting) {
+      throw new Error('Cannot change Floox state in the middle of state propagation.');
+    }
+
+    data.batchCount += 1;
+    changes();
+    data.batchCount -= 1;
+    if (callback) {
+      data.callbacks.push(callback);
+    }
+
+    if (data.batchCount === 0) {
+      (0, _apply_changes2['default'])(data);
+    }
   };
 
   Floox.prototype.addChangeListener = function addChangeListener(listener) {
-    var data = privateData.get(this);
-
-    if (data.isSetting) {
-      throw new Error('Cannot add listeners in the middle of state propagation.');
-    }
-
-    data.listeners.add(listener);
+    privateData.get(this).listeners.add(listener);
   };
 
   Floox.prototype.removeChangeListener = function removeChangeListener(listener) {
-    var data = privateData.get(this);
-
-    if (data.isSetting) {
-      throw new Error('Cannot remove listeners in the middle of state propagation.');
-    }
-
     privateData.get(this).listeners['delete'](listener);
   };
 

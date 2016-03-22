@@ -6,7 +6,7 @@ const should = require('should/as-function');
 const sinon = require('sinon');
 
 
-describe('connectFloox', () => {
+describe('connectFloox function', () => {
   let connectFloox;
   let Floox;
   let renderer;
