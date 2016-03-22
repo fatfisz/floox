@@ -2,7 +2,7 @@
   "name": "floox",
   "version": "2.0.0-rc1",
   "description": "Simple global state handling for React, inspired by Flux",
-  "main": "dist/index.js",
+  "main": "dist/index.rollup.js",
   "keywords": [
     "actions",
     "components",
@@ -31,6 +31,7 @@
     "grunt-contrib-clean": "^1.0.0",
     "grunt-eslint": "^18.0.0",
     "grunt-mocha-test": "^0.12.7",
+    "grunt-rollup": "^0.6.2",
     "jsdom": "^8.1.0",
     "load-grunt-tasks": "^3.4.1",
     "mocha": "^2.4.5",
@@ -38,6 +39,7 @@
     "react": "^0.14.7",
     "react-addons-test-utils": "^0.14.7",
     "react-dom": "^0.14.7",
+    "rollup-plugin-babel": "^1.0.0",
     "should": "^8.2.2",
     "should-sinon": "0.0.5",
     "sinon": "^2.0.0-pre"
