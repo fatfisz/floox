@@ -18,29 +18,29 @@ var _listeners_callback2 = _interopRequireDefault(_listeners_callback);
 function applyChanges(data) {
   var combineState = data.combineState;
   var listeners = data.listeners;
-
-  var listenersLeft = listeners.size;
-
-  data.isSetting = true;
-
   var state = data.state;
 
+  data.isSetting = true;
   data.partialStates.forEach(function (partialState) {
     state = combineState(state, partialState);
   });
   data.state = state;
 
-  if (listenersLeft === 0) {
+  if (listeners.size === 0) {
     (0, _cleanup2['default'])(data);
     return;
   }
 
-  data.listenersLeft = listenersLeft;
+  // Guard against synchronous listeners calling "cleanup" too early
+  data.listenersLeft = 1;
   listeners.forEach(function (listener) {
+    data.listenersLeft += 1;
     listener(function () {
       (0, _listeners_callback2['default'])(data);
     });
   });
+  // The "last listener":
+  (0, _listeners_callback2['default'])(data);
 }
 
 module.exports = exports['default'];

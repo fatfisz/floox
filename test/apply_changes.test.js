@@ -65,7 +65,8 @@ describe('applyChanges function', () => {
     should(data).be.eql({
       state: 'state',
       listeners,
-      listenersLeft: 3,
+      // There is an additional internal listener, so the number is 3 + 1
+      listenersLeft: 4,
       isSetting: true,
       partialStates: [],
     });
@@ -146,5 +147,66 @@ describe('applyChanges function', () => {
     applyChanges(data);
 
     should(listenersCallback).be.alwaysCalledWithExactly(data);
+  });
+
+  describe('modifying listeners from listeners', () => {
+    beforeEach(() => {
+      mockery.deregisterMock('./listeners_callback');
+      mockery.resetCache();
+
+      applyChanges = require('../dist/apply_changes');
+    });
+
+    it('should handle the case of a listener that\'s adding a new listener', () => {
+      function listener1(callback) {
+        should(cleanup).not.be.called();
+        data.listeners.add(listener3);
+        callback();
+      }
+
+      function listener2(callback) {
+        should(cleanup).not.be.called();
+        callback();
+      }
+
+      function listener3(callback) {
+        should(cleanup).not.be.called();
+        callback();
+      }
+
+      const data = {
+        listeners: new Set([listener1, listener2]),
+        partialStates: [],
+      };
+
+      applyChanges(data);
+      should(cleanup).be.calledOnce();
+    });
+
+    it('should handle the case of a listener that\'s removing a listener', () => {
+      function listener1(callback) {
+        should(cleanup).not.be.called();
+        data.listeners.delete(listener3);
+        callback();
+      }
+
+      function listener2(callback) {
+        should(cleanup).not.be.called();
+        callback();
+      }
+
+      function listener3(callback) {
+        should(cleanup).not.be.called();
+        callback();
+      }
+
+      const data = {
+        listeners: new Set([listener1, listener2, listener3]),
+        partialStates: [],
+      };
+
+      applyChanges(data);
+      should(cleanup).be.calledOnce();
+    });
   });
 });

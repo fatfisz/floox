@@ -80,29 +80,29 @@ function listenersCallback(data) {
 function applyChanges(data) {
   var combineState = data.combineState;
   var listeners = data.listeners;
-
-  var listenersLeft = listeners.size;
-
-  data.isSetting = true;
-
   var state = data.state;
 
+  data.isSetting = true;
   data.partialStates.forEach(function (partialState) {
     state = combineState(state, partialState);
   });
   data.state = state;
 
-  if (listenersLeft === 0) {
+  if (listeners.size === 0) {
     cleanup(data);
     return;
   }
 
-  data.listenersLeft = listenersLeft;
+  // Guard against synchronous listeners calling "cleanup" too early
+  data.listenersLeft = 1;
   listeners.forEach(function (listener) {
+    data.listenersLeft += 1;
     listener(function () {
       listenersCallback(data);
     });
   });
+  // The "last listener":
+  listenersCallback(data);
 }
 
 function defaultCombineState(currentState, partialState) {
