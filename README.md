@@ -47,7 +47,7 @@ const floox = new Floox({
       clicks: this.state.clicks + 1,
     });
   },
-})
+});
 ```
 
 Before we are able to use the Floox store, we need to "provide" it to the React component tree. For that there is a component named `FlooxProvider`:
@@ -61,14 +61,19 @@ ReactDOM.render(
 );
 ```
 
-Once this is done, you can "connect" your components to Floox like this:
+Once this is done, you can "connect" your components to the store like this:
 ```js
 const MyComponent = React.createClass({
   render() {
-    return <div onClick={this.handleClick}>{this.props.clicks}</div>;
+    return (
+      <button onClick={this.handleClick}>
+        {this.props.clicks}
+      </button>
+    );
   },
 
   handleClick() {
+    // Each click will cause the counter to increase
     this.props.floox.increment();
   },
 });
@@ -81,13 +86,74 @@ export default connectFloox(MyComponent, {
 
 ## A bit more in-depth explanation
 
-Floox instances provide the `setState` method for modifying the state returned by the user-defined `getInitialState` method.
+Floox stores provide the `setState` method for modifying the state returned by the user-defined `getInitialState` method.
 You can define actions as calls to `setState`.
-After `setState` is fired, all components connected to the Floox store will receive an update and pass the changed store values as props. Until all changes are applied and the components are re-rendered, you can't use `setState` - an error will be thrown to signal such situations.
+After `setState` is fired, all components connected to the store will receive an update and pass the changed store values as props. Until all changes are applied and the components are re-rendered, you can't use `setState` - an error will be thrown to signal such situations.
 
 ## API
 
-This section is still under construction!
+The `'floox'` module exports only these: `connectFloox`, `Floox`, `FlooxProvider`.
+
+### Floox
+
+This is the class (or simply a constructor function with a few prototype methods) that is the brains of Floox 2. It should be initialized with a configuration object that should/may contain these:
+
+#### getInitialState() (required)
+
+This method should return the initial state of the store. It can be an object, a number, anything, as long as it can be later combined with whatever is passed to `setState`.
+
+#### combineState(currentState, partialState) (optional)
+
+This method takes care of updating the current state based on what is passed to `setState`. The default implementation does this:
+
+1. If `partialState` is a function, set the current state to `partialState(currentState)` - this is useful for batched changes.
+2. If both `currentState` and `partialState` are objects (`partialState` can also be `null`), then set the current state to `Object.assign(currentState, partialState)`.
+3. Else the current state can't be extended by the partial state, so just set the current state to `partialState`.
+
+Basically, this tries to extend the current state with a partial state (or transform it with a function), and falls back to replacing the current state if it is a primitive value, or is being replaced with a primitive value.
+This is a little bit less restrictive than what's happening in React's own `setState`.
+
+#### Anything else
+
+As long as it is an own enumerable property of the config object and not one of the two methods above, it is assigned to the store instance too. That's where you will be declaring your actions.
+
+--
+
+The constructed Floox store has these properties:
+
+#### get state
+
+The `state` has only a getter to prevent setting the state without using the `setState` method. Inside actions you can use `this.state`.
+
+#### setState(partialState, [callback])
+
+The method combines the current state with the partial state, notifies all connected components through the listeners (they are set up automatically when you use `connectFloox`), and after the changes are applied calls `callback` (it's optional).
+You won't be able to use `setState` before the previous call finishes (`callback` is the safe place to do it).
+
+#### batch(changes, [callback])
+
+This method allows you to collect `setState` calls inside the `changes` function and then apply the changes at once, similarly notifying all connected components and calling `callback` afterwards.
+This is useful when you don't want each state change to cause re-rendering.
+Because changes have to made synchronously with `setState`, there is no space for any data flow loops, i.e. changes that induce other changes.
+Use it like that:
+```js
+this.batch(() => {
+  this.firstAction();
+  this.secondAction();
+});
+```
+
+The partial states are applied in the order of appearance.
+The callbacks are also called in the order of appearance, with the callback passed to the `batch` method called last.
+You can put calls to the `batch` method inside other `batch` calls - the changes will be applied just before the topmost `batch` call finishes.
+
+#### addChangeListener(listener) and removeChangeListener(listener)
+
+These methods are mainly for the internal usage.
+They allow adding/removing a listener function, which will be called after the changes to the current state are made.
+The listener is passed a callback which it has to call for the state transition to be finished.
+If even one of the listeners fails to do so, you won't be able to use `setState` again.
+The `connectFloox` function takes care of setting up/tearing down listeners and handling the callbacks, so you don't have to worry about it.
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style.
