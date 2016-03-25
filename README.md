@@ -6,7 +6,7 @@
 [![Dependency Status](https://david-dm.org/fatfisz/floox.svg)](https://david-dm.org/fatfisz/floox)
 [![devDependency Status](https://david-dm.org/fatfisz/floox/dev-status.svg)](https://david-dm.org/fatfisz/floox#info=devDependencies)
 
-Floox lets you manage the global state of your React app, while also protecting you from updates that are a direct result of other updates - to ensure the unidirectional data flow. All this while remaining simple and using
+Floox lets you manage the global state of your React app, while also protecting you from updates that are a direct result of other updates - to ensure the unidirectional data flow. All this while remaining simple and using methods similar to the ones used for managing component state.
 
 ## Getting Started
 
