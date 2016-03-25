@@ -88,7 +88,7 @@ export default connectFloox(MyComponent, {
 
 Floox stores provide the `setState` method for modifying the state returned by the user-defined `getInitialState` method.
 You can define actions as calls to `setState`.
-After `setState` is fired, all components connected to the store will receive an update and pass the changed store values as props. Until all changes are applied and the components are re-rendered, you can't use `setState` - an error will be thrown to signal such situations.
+After `setState` is fired, all components connected to the store will be updated and receive the changed store values as props. Until all changes are applied and the components are re-rendered, you can't use `setState` - an error will be thrown to signal such situations.
 
 ## API
 
