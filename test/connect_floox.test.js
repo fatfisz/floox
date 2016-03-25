@@ -139,7 +139,9 @@ describe('connectFloox function', () => {
     };
     const Component = connectFloox('test', {});
     const element = React.createElement(Component, {});
-    const callback = () => {};
+    const callback = () => {
+      should(instance.callback).be.equal(callback);
+    };
 
     renderer.render(element, { floox });
     const instance = renderer._instance._instance;
@@ -152,7 +154,8 @@ describe('connectFloox function', () => {
     instance.flooxUpdate(callback);
 
     should(instance.setState).be.calledOnce();
-    should(instance.setState).be.calledWithExactly({}, callback);
+    should(instance.setState).be.calledWithExactly({}, sinon.match.func);
+    should(instance.callback).be.equal(null);
   });
 
   it('should add the listener on mount', () => {
@@ -283,5 +286,79 @@ describe('connectFloox function', () => {
 
       should(connector.render).be.called();
     });
+  });
+
+  it('should call the `flooxUpdate` callback even if the component is unmounted after `setState`', (done) => {
+    // This documents the case described here: https://github.com/facebook/react/issues/6320
+    let listener;
+    let init;
+
+    const FlooxProvider = React.createClass({
+      childContextTypes: {
+        floox: React.PropTypes.instanceOf(Floox).isRequired,
+      },
+
+      getChildContext() {
+        return {
+          floox: {
+            addChangeListener(_listener) {
+              listener = _listener;
+            },
+            removeChangeListener() {
+              listener = null;
+            },
+          },
+        };
+      },
+
+      render() {
+        return this.props.children;
+      },
+    });
+
+    const A = React.createClass({
+      getInitialState() {
+        return {
+          shouldUpdate: false,
+          showChild: true,
+        };
+      },
+
+      componentDidMount() {
+        init = this.update;
+      },
+
+      shouldComponentUpdate(nextProps, nextState) {
+        return nextState.shouldUpdate;
+      },
+
+      render() {
+        const child = this.state.showChild ? React.createElement(B) : null;
+        return React.createElement('test', {}, child);
+      },
+
+      update() {
+        this.setState({ shouldUpdate: false }, () => {
+          this.setState({
+            shouldUpdate: true,
+            showChild: false,
+          });
+          listener(done);
+        });
+      },
+    });
+
+    const B = connectFloox(React.createClass({
+      render() {
+        return null;
+      },
+    }), {});
+
+    const a = React.createElement(A);
+    const provider = React.createElement(FlooxProvider, {}, a);
+
+    ReactTestUtils.renderIntoDocument(provider);
+
+    init();
   });
 });
