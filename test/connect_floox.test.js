@@ -238,18 +238,18 @@ describe('connectFloox function', () => {
       sinon.spy(connector, 'render');
     });
 
-    it('should not update when nothing changes', () => {
+    it('should update even when nothing changes', () => {
       floox.setState({});
 
-      should(connector.render).not.be.called();
+      should(connector.render).be.called();
     });
 
-    it('should not update when a property named "floox" is set', () => {
+    it('should update when a property named "floox" is set', () => {
       floox.setState({
         floox: 'not today',
       });
 
-      should(connector.render).not.be.called();
+      should(connector.render).be.called();
     });
 
     it('should update when a property that\'s mapped changes (string)', () => {
@@ -260,12 +260,12 @@ describe('connectFloox function', () => {
       should(connector.render).be.called();
     });
 
-    it('should not update when a property that\'s not mapped changes (string)', () => {
+    it('should update when a property that\'s not mapped changes (string)', () => {
       floox.setState({
         notMappedString: 'second',
       });
 
-      should(connector.render).not.be.called();
+      should(connector.render).be.called();
     });
 
     it('should update when a property that\'s mapped changes (object)', () => {
@@ -276,12 +276,12 @@ describe('connectFloox function', () => {
       should(connector.render).be.called();
     });
 
-    it('should not update when a property that\'s not mapped changes (object)', () => {
+    it('should update when a property that\'s not mapped changes (object)', () => {
       floox.setState({
         notMappedObject: secondObject,
       });
 
-      should(connector.render).not.be.called();
+      should(connector.render).be.called();
     });
   });
 });
