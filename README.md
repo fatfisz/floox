@@ -113,7 +113,7 @@ This method takes care of updating the current state based on what is passed to 
 Basically, this tries to extend the current state with a partial state (or transform it with a function), and falls back to replacing the current state if it is a primitive value, or is being replaced with a primitive value.
 This is a little bit less restrictive than what's happening in React's own `setState`.
 
-#### Anything else
+#### Other properties
 
 As long as it is an own enumerable property of the config object and not one of the two methods above, it is assigned to the store instance too. That's where you will be declaring your actions.
 
