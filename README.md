@@ -44,7 +44,7 @@ const floox = new Floox({
 
   increment() {
     this.setState({
-      clicks: this.state.clicks,
+      clicks: this.state.clicks + 1,
     });
   },
 })
