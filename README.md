@@ -94,15 +94,15 @@ After `setState` is fired, all components connected to the store will be updated
 
 The `'floox'` module exports only these: `connectFloox`, `Floox`, `FlooxProvider`.
 
-### Floox
+### `Floox`
 
 This is the class (or simply a constructor function with a few prototype methods) that is the brains of Floox 2. It should be initialized with a configuration object that should/may contain these:
 
-#### getInitialState() (required)
+#### `getInitialState()` (required)
 
 This method should return the initial state of the store. It can be an object, a number, anything, as long as it can be later combined with whatever is passed to `setState`.
 
-#### combineState(currentState, partialState) (optional)
+#### `combineState(currentState, partialState)` (optional)
 
 This method takes care of updating the current state based on what is passed to `setState`. The default implementation does this:
 
@@ -121,16 +121,16 @@ As long as it is an own enumerable property of the config object and not one of 
 
 The constructed Floox store has these properties:
 
-#### get state
+#### `get state`
 
 The `state` has only a getter to prevent setting the state without using the `setState` method. Inside actions you can use `this.state`.
 
-#### setState(partialState, [callback])
+#### `setState(partialState, [callback])`
 
 The method combines the current state with the partial state, notifies all connected components through the listeners (they are set up automatically when you use `connectFloox`), and after the changes are applied calls `callback` (it's optional).
 You won't be able to use `setState` before the previous call finishes (`callback` is the safe place to do it).
 
-#### batch(changes, [callback])
+#### `batch(changes, [callback])`
 
 This method allows you to collect `setState` calls inside the `changes` function and then apply the changes at once, similarly notifying all connected components and calling `callback` afterwards.
 This is useful when you don't want each state change to cause re-rendering.
@@ -147,13 +147,43 @@ The partial states are applied in the order of appearance.
 The callbacks are also called in the order of appearance, with the callback passed to the `batch` method called last.
 You can put calls to the `batch` method inside other `batch` calls - the changes will be applied just before the topmost `batch` call finishes.
 
-#### addChangeListener(listener) and removeChangeListener(listener)
+#### `addChangeListener(listener)` and `removeChangeListener(listener)`
 
 These methods are mainly for the internal usage.
 They allow adding/removing a listener function, which will be called after the changes to the current state are made.
 The listener is passed a callback which it has to call for the state transition to be finished.
 If even one of the listeners fails to do so, you won't be able to use `setState` again.
 The `connectFloox` function takes care of setting up/tearing down listeners and handling the callbacks, so you don't have to worry about it.
+
+### `FlooxProvider`
+
+A component that needs only a "floox" prop and a child.
+The value passed as a "floox" prop should be an instance of the `Floox` class.
+If none or more than one children are passed, an error will be thrown.
+
+### `connectFloox(Component, mapping)`
+
+This function wraps the passed `Component` with another component, which connects to the store using `addChangeListener` and `removeChangeListener`.
+
+The `mapping` argument describes which store properties to pass as props to `Component` and how should they be named.
+It should be an object with properties being either `true` or strings.
+Let's consider a small example:
+```js
+connectFloox(Component, {
+  sameValue: true,
+  differentKey: 'differentValue',
+});
+```
+This will fetch the `sameValue` and `differentKey` properties from the store state and pass them to `Component` as `sameValue` and `differentValue` props.
+The mapping doesn't influence the actual values of the properties!
+
+The `floox` mapping property is a special case - it will always point to the store itself.
+This allows calling actions from components.
+
+The props passed to the component wrapper are passed to the component itself.
+Be careful, as they are overwritten by the store props!
+
+Almost everything you need to know about how to use this (apart from the renamed properties) is contained in the [first example](#basic_usage).
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style.
