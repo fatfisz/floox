@@ -183,7 +183,7 @@ This allows calling actions from components.
 The props passed to the component wrapper are passed to the component itself.
 Be careful, as they are overwritten by the store props!
 
-Almost everything you need to know about how to use this (apart from the renamed properties) is contained in the [first example](#basic_usage).
+Almost everything you need to know about how to use this (apart from the renamed properties) is contained in the [first example](#basic-usage).
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style.
