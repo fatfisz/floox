@@ -15,11 +15,11 @@ Install the package with this command:
 npm install floox --save
 ```
 
-Floox 2 makes use of ES6 data structures, e.g. `WeakMap`, so ensure you have those too.
+Floox 2 makes use of ES6 data structures, e.g. `WeakMap`, so make sure you have those too.
 
 ## Backstory
 
-I was using Floox for a few months and I soon found out that there were some serious problems with it.
+I had been using Floox for a few months and I soon found out that there were some serious problems with it.
 The `StateFromStoreMixin` mixin was useless in the isomorphic website scenarios because of its ties to the `floox` instances.
 There were also some areas that were overly complicated: events, multiple stores, "namespaces", etc.
 
@@ -110,7 +110,7 @@ This method takes care of updating the current state based on what is passed to 
 2. If both `currentState` and `partialState` are objects (`partialState` can also be `null`), then set the current state to `Object.assign(currentState, partialState)`.
 3. Else the current state can't be extended by the partial state, so just set the current state to `partialState`.
 
-Basically, this tries to extend the current state with a partial state (or transform it with a function), and falls back to replacing the current state if it is a primitive value, or is being replaced with a primitive value.
+Basically, this tries to extend (or transform with a function) the current state with a partial state, and in the case it's not possible, it replaces one with the other.
 This is a little bit less restrictive than what's happening in React's own `setState`.
 
 #### Other properties
@@ -127,14 +127,14 @@ The `state` has only a getter to prevent setting the state without using the `se
 
 #### `setState(partialState, [callback])`
 
-The method combines the current state with the partial state, notifies all connected components through the listeners (they are set up automatically when you use `connectFloox`), and after the changes are applied calls `callback` (it's optional).
+The method combines the current state with the partial state, notifies all connected components through the listeners (they are set up automatically when you use `connectFloox`), and calls `callback` after the changes are applied (it's optional).
 You won't be able to use `setState` before the previous call finishes (`callback` is the safe place to do it).
 
 #### `batch(changes, [callback])`
 
 This method allows you to collect `setState` calls inside the `changes` function and then apply the changes at once, similarly notifying all connected components and calling `callback` afterwards.
 This is useful when you don't want each state change to cause re-rendering.
-Because changes have to made synchronously with `setState`, there is no space for any data flow loops, i.e. changes that induce other changes.
+Because changes have to be made synchronously with `setState`, there is no space for any data flow loops, i.e. changes that induce other changes.
 Use it like that:
 ```js
 this.batch(() => {
