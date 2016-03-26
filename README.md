@@ -117,7 +117,7 @@ This is a little bit less restrictive than what's happening in React's own `setS
 
 As long as it is an own enumerable property of the config object and not one of the two methods above, it is assigned to the store instance too. That's where you will be declaring your actions.
 
---
+---
 
 The constructed Floox store has these properties:
 
