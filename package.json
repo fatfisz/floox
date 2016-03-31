@@ -3,6 +3,10 @@
   "version": "2.0.0-rc1",
   "description": "Simple global state handling for React, inspired by Flux",
   "main": "dist/index.rollup.js",
+  "files": [
+    "dist/index.rollup.js",
+    "lib"
+  ],
   "keywords": [
     "actions",
     "components",
