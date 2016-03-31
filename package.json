@@ -1,6 +1,6 @@
 {
   "name": "floox",
-  "version": "2.0.0-rc1",
+  "version": "2.0.0-rc2",
   "description": "Simple global state handling for React, inspired by Flux",
   "main": "dist/index.rollup.js",
   "files": [
