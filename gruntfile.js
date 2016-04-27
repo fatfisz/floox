@@ -53,7 +53,6 @@ module.exports = function register(grunt) {
         ],
       },
     },
-
   });
 
   grunt.registerTask('prepublish', ['eslint', 'clean', 'babel', 'rollup']);
