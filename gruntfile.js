@@ -37,7 +37,7 @@ module.exports = function register(grunt) {
           expand: true,
           cwd: 'lib/',
           src: '**/*.js',
-          dest: 'dist/',
+          dest: 'tmp/',
         }],
       },
     },

@@ -20,8 +20,8 @@ describe('FlooxProvider component', () => {
         React = require(`./react/${version}`);
         mockery.registerMock('react', React);
 
-        Floox = require('../dist/floox_class');
-        FlooxProvider = require('../dist/floox_provider');
+        Floox = require('../tmp/floox_class');
+        FlooxProvider = require('../tmp/floox_provider');
 
 
         renderer = React.addons.TestUtils.createRenderer();

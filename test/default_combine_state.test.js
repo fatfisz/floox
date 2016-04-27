@@ -8,7 +8,7 @@ describe('defaultCombineState function', () => {
   let defaultCombineState;
 
   beforeEach(() => {
-    defaultCombineState = require('../dist/default_combine_state');
+    defaultCombineState = require('../tmp/default_combine_state');
   });
 
   it('should return the partial state if the type of the current state is not `object`', () => {

@@ -14,7 +14,7 @@ describe('listenersCallback function', () => {
 
     mockery.registerMock('./cleanup', cleanup);
 
-    listenersCallback = require('../dist/listeners_callback');
+    listenersCallback = require('../tmp/listeners_callback');
   });
 
   afterEach(() => {

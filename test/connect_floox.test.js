@@ -19,8 +19,8 @@ describe('connectFloox function', () => {
         React = require(`./react/${version}`);
         mockery.registerMock('react', React);
 
-        connectFloox = require('../dist/connect_floox');
-        Floox = require('../dist/floox_class');
+        connectFloox = require('../tmp/connect_floox');
+        Floox = require('../tmp/floox_class');
 
 
         // Stub to prevent writing messages to stdout.

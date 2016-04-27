@@ -17,7 +17,7 @@ describe('applyChanges function', () => {
     mockery.registerMock('./cleanup', cleanup);
     mockery.registerMock('./listeners_callback', listenersCallback);
 
-    applyChanges = require('../dist/apply_changes');
+    applyChanges = require('../tmp/apply_changes');
   });
 
   afterEach(() => {
@@ -154,7 +154,7 @@ describe('applyChanges function', () => {
       mockery.deregisterMock('./listeners_callback');
       mockery.resetCache();
 
-      applyChanges = require('../dist/apply_changes');
+      applyChanges = require('../tmp/apply_changes');
     });
 
     it('should handle the case of a listener that\'s adding a new listener', () => {

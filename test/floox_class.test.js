@@ -17,7 +17,7 @@ describe('Floox class', () => {
     mockery.registerMock('./apply_changes', applyChanges);
     mockery.registerMock('./default_combine_state', defaultCombineState);
 
-    Floox = require('../dist/floox_class');
+    Floox = require('../tmp/floox_class');
   });
 
   afterEach(() => {

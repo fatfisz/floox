@@ -9,7 +9,7 @@ describe('cleanup function', () => {
   let cleanup;
 
   beforeEach(() => {
-    cleanup = require('../dist/cleanup');
+    cleanup = require('../tmp/cleanup');
   });
 
   afterEach(() => {

@@ -12,7 +12,7 @@ describe('index', () => {
     mockery.registerMock('./floox_class', 'floox_class');
     mockery.registerMock('./floox_provider', 'floox_provider');
 
-    floox = require('../dist');
+    floox = require('../tmp');
   });
 
   afterEach(() => {
