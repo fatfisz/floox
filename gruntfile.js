@@ -26,7 +26,7 @@ module.exports = function register(grunt) {
           format: 'cjs',
         },
         files: {
-          'dist/index.rollup.js': 'lib/index.js',
+          'dist/index.js': 'lib/index.js',
         },
       },
     },
