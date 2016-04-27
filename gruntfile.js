@@ -55,8 +55,8 @@ module.exports = function register(grunt) {
     },
   });
 
-  grunt.registerTask('prepublish', ['eslint', 'clean', 'babel', 'rollup']);
-  grunt.registerTask('test', ['prepublish', 'mochaTest']);
+  grunt.registerTask('prepublish', ['eslint', 'clean', 'rollup']);
+  grunt.registerTask('test', ['prepublish', 'babel', 'mochaTest']);
 
   grunt.registerTask('default', ['test']);
 };
