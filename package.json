@@ -28,7 +28,6 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "babel": "^5.8.38",
     "babel-plugin-object-assign": "^1.2.1",
     "eslint": "^2.8.0",
     "grunt": "^1.0.1",
