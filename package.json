@@ -6,7 +6,7 @@
   "jsnext:main": "lib/index.js",
   "files": [
     "dist/index.js",
-    "lib"
+    "lib/*.js"
   ],
   "keywords": [
     "actions",
