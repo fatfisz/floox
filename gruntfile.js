@@ -13,7 +13,7 @@ module.exports = function register(grunt) {
     },
 
     clean: {
-      all: ['dist'],
+      all: ['dist', 'tmp'],
     },
 
     rollup: {
