@@ -148,9 +148,9 @@ describe('connectFloox function', () => {
         };
         const Component = connectFloox('test', {});
         const element = React.createElement(Component, {});
-        const callback = () => {
-          should(instance.callback).be.equal(callback);
-        };
+        const callback = sinon.spy(() => {
+          should(instance.callback).be.equal(null);
+        });
 
         renderer.render(element, { floox });
         const instance = renderer._instance._instance;
@@ -164,6 +164,7 @@ describe('connectFloox function', () => {
 
         should(instance.setState).be.calledOnce();
         should(instance.setState).be.calledWithExactly({}, sinon.match.func);
+        should(callback).be.calledOnce();
         should(instance.callback).be.equal(null);
       });
 
@@ -362,6 +363,73 @@ describe('connectFloox function', () => {
             return null;
           },
         }), {});
+
+        const a = React.createElement(A);
+        const provider = React.createElement(FlooxProvider, {}, a);
+
+        React.addons.TestUtils.renderIntoDocument(provider);
+
+        init();
+      });
+
+      it('should prevent calling listeners twice in one update cycle', () => {
+        let init;
+
+        const floox = new Floox({
+          getInitialState() {
+            return 1;
+          },
+
+          action(callback) {
+            this.setState(2, callback);
+          },
+
+          messThingsUp() {
+            this.setState(3);
+          },
+        });
+
+        const FlooxProvider = React.createClass({
+          childContextTypes: {
+            floox: React.PropTypes.instanceOf(Floox).isRequired,
+          },
+
+          getChildContext() {
+            return { floox };
+          },
+
+          render() {
+            return this.props.children;
+          },
+        });
+
+        const A = connectFloox(React.createClass({
+          getInitialState() {
+            return {
+              shouldUpdate: false,
+            };
+          },
+
+          componentDidMount() {
+            init = this.update;
+          },
+
+          shouldComponentUpdate(nextProps, nextState) {
+            return nextState.shouldUpdate;
+          },
+
+          render() {
+            return null;
+          },
+
+          update() {
+            this.setState({ shouldUpdate: false }, () => {
+              floox.action(() => {
+                floox.messThingsUp();
+              });
+            });
+          },
+        }), { floox: true });
 
         const a = React.createElement(A);
         const provider = React.createElement(FlooxProvider, {}, a);

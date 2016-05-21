@@ -283,10 +283,7 @@ function connectFloox(Component, mapping) {
 
     componentWillUnmount: function componentWillUnmount() {
       this.context.floox.removeChangeListener(this.flooxUpdate);
-      if (this.callback) {
-        this.callback();
-        this.callback = null;
-      }
+      this.callbackAndCleanup();
     },
 
     render: function render() {
@@ -294,8 +291,6 @@ function connectFloox(Component, mapping) {
     },
 
     flooxUpdate: function flooxUpdate(callback) {
-      var _this = this;
-
       if (process.env.NODE_ENV !== 'production' && this.callback) {
         throw new Error('The listener was called twice in one update cycle. This shouldn\'t happen.');
       }
@@ -303,12 +298,16 @@ function connectFloox(Component, mapping) {
       var nextState = getState(this.context.floox, mapping, keys, passFloox);
 
       this.callback = callback;
-      this.setState(nextState, function () {
-        if (_this.callback) {
-          _this.callback();
-          _this.callback = null;
-        }
-      });
+      this.setState(nextState, this.callbackAndCleanup);
+    },
+
+    callbackAndCleanup: function callbackAndCleanup() {
+      var callback = this.callback;
+
+      if (callback) {
+        this.callback = null;
+        callback();
+      }
     }
   });
 }
