@@ -1,17 +1,7 @@
 'use strict';
 
-module.exports = [
-  '0.14.0',
-  '0.14.1',
-  '0.14.2',
-  '0.14.3',
-  '0.14.4',
-  '0.14.5',
-  '0.14.6',
-  '0.14.7',
-  '0.14.8',
-  '15.0.0-rc.1',
-  '15.0.0-rc.2',
-  '15.0.0',
-  '15.0.1',
-];
+const fs = require('fs');
+
+module.exports = fs.readdirSync(__dirname)
+  .filter((filename) => filename !== 'versions.js')
+  .map((filename) => filename.slice(0, filename.length - 3)); // remove ".js"
