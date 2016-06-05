@@ -27,8 +27,8 @@ function getFlooxProvider(React, Floox, floox) {
   });
 }
 
-function buildAndRender(React, FlooxProvider, Component) {
-  const element = React.createElement(Component, {});
+function buildAndRender(React, FlooxProvider, Component, props) {
+  const element = React.createElement(Component, props);
   const provider = React.createElement(FlooxProvider, {}, element);
   return React.addons.TestUtils.renderIntoDocument(provider);
 }
@@ -41,7 +41,9 @@ function getConnector(React, tree) {
 
   should(connector).be.ok();
 
-  sinon.spy(connector, 'render');
+  if (!connector.render.isSinonProxy) {
+    sinon.spy(connector, 'render');
+  }
 
   return connector;
 }
@@ -49,14 +51,17 @@ function getConnector(React, tree) {
 describe('connectFloox function', () => {
   reactVersions.forEach((version) => {
     describe(`React v. ${version}`, () => {
-      let React;
       let connectFloox;
       let Floox;
+      let React;
+      let ReactDOM;
       let renderer;
 
       beforeEach(() => {
         React = require(`./react/${version}`);
         mockery.registerMock('react', React);
+
+        ReactDOM = React.__SECRET_DOM_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
 
         connectFloox = require('../tmp/connect_floox');
         Floox = require('../tmp/floox_class');
@@ -310,6 +315,88 @@ describe('connectFloox function', () => {
         it('should update when a property that\'s not mapped changes (object)', () => {
           floox.setState({
             notMappedObject: secondObject,
+          });
+
+          should(connector.render).be.called();
+        });
+      });
+
+      describe('state updates with `shouldComponentUpdate`', () => {
+        let connector;
+        let floox;
+        let FlooxProvider;
+        let shouldComponentUpdate;
+
+        beforeEach(() => {
+          floox = new Floox({
+            getInitialState() {
+              return {
+                flooxProp: 1,
+              };
+            },
+          });
+          FlooxProvider = getFlooxProvider(React, Floox, floox);
+          shouldComponentUpdate = sinon.stub();
+        });
+
+        it('should call `shouldComponentUpdate` after the floox state has changed', () => {
+          const Component = connectFloox('test', { flooxProp: true }, { shouldComponentUpdate });
+          const tree = buildAndRender(React, FlooxProvider, Component, { prop: 1 });
+          const connector = getConnector(React, tree);
+
+          floox.setState({
+            flooxProp: 2,
+          });
+
+          should(shouldComponentUpdate).be.calledOnce();
+          should(shouldComponentUpdate).be.calledOn(connector);
+          should(shouldComponentUpdate).be.calledWithExactly({ prop: 1 }, { flooxProp: 2 });
+        });
+
+        it('should call `shouldComponentUpdate` after the connector element props have changed', () => {
+          const Component = connectFloox('test', { flooxProp: true }, { shouldComponentUpdate });
+
+          const renderTarget = global.document.createElement('div');
+
+          const element = React.createElement(Component, { prop: 1 });
+          const provider = React.createElement(FlooxProvider, {}, element);
+          const tree = ReactDOM.render(provider, renderTarget);
+          const connector = getConnector(React, tree);
+
+          const element2 = React.createElement(Component, { prop: 2 });
+          const provider2 = React.createElement(FlooxProvider, {}, element2);
+          const tree2 = ReactDOM.render(provider2, renderTarget);
+          const connector2 = getConnector(React, tree2);
+
+          should(connector).be.equal(connector2);
+          should(shouldComponentUpdate).be.calledOnce();
+          should(shouldComponentUpdate).be.calledOn(connector);
+          should(shouldComponentUpdate).be.calledWithExactly({ prop: 2 }, { flooxProp: 1 });
+        });
+
+        it('should not render when `shouldComponentUpdate` returns `false`', () => {
+          shouldComponentUpdate.returns(false);
+
+          const Component = connectFloox('test', { flooxProp: true }, { shouldComponentUpdate });
+          const tree = buildAndRender(React, FlooxProvider, Component);
+          connector = getConnector(React, tree);
+
+          floox.setState({
+            flooxProp: 2,
+          });
+
+          should(connector.render).not.be.called();
+        });
+
+        it('should render when `shouldComponentUpdate` returns `true`', () => {
+          shouldComponentUpdate.returns(true);
+
+          const Component = connectFloox('test', { flooxProp: true }, { shouldComponentUpdate });
+          const tree = buildAndRender(React, FlooxProvider, Component);
+          connector = getConnector(React, tree);
+
+          floox.setState({
+            flooxProp: 2,
           });
 
           should(connector.render).be.called();

@@ -232,6 +232,8 @@ function getState(floox, mapping, keys, passFloox) {
   return result;
 }
 function connectFloox(Component, mapping) {
+  var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
   if (process.env.NODE_ENV !== 'production' && typeof Component !== 'function' && typeof Component !== 'string') {
     // eslint-disable-next-line no-console
     throw new Error('Expected Component to be a string (for built-in components) or a class/function (for composite components).');
@@ -240,6 +242,12 @@ function connectFloox(Component, mapping) {
   if (process.env.NODE_ENV !== 'production' && (typeof mapping !== 'object' || mapping === null)) {
     // eslint-disable-next-line no-console
     throw new Error('Expected mapping to be an object.');
+  }
+
+  var _shouldComponentUpdate = options.shouldComponentUpdate;
+
+  if (process.env.NODE_ENV !== 'production' && typeof _shouldComponentUpdate !== 'undefined' && typeof _shouldComponentUpdate !== 'function') {
+    throw new Error('Expected `shouldComponentUpdate` to be a function.');
   }
 
   var componentName = getComponentName(Component);
@@ -279,6 +287,14 @@ function connectFloox(Component, mapping) {
 
     componentDidMount: function componentDidMount() {
       this.context.floox.addChangeListener(this.flooxUpdate);
+    },
+
+    shouldComponentUpdate: function shouldComponentUpdate(nextProps, nextState) {
+      if (!_shouldComponentUpdate) {
+        return true;
+      }
+
+      return _shouldComponentUpdate.call(this, nextProps, nextState);
     },
 
     componentWillUnmount: function componentWillUnmount() {
