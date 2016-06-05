@@ -25,7 +25,7 @@ Floox lets you manage the global state of your React app, while also protecting 
     - [`batch(changes, [callback])`](#batchchanges-callback)
     - [`addChangeListener(listener)` and `removeChangeListener(listener)`](#addchangelistenerlistener-and-removechangelistenerlistener)
   - [`FlooxProvider`](#flooxprovider)
-    - [`connectFloox(Component, mapping)`](#connectflooxcomponent-mapping)
+  - [`connectFloox(Component, mapping)`](#connectflooxcomponent-mapping)
 - [Contributing](#contributing)
 - [License](#license)
 
