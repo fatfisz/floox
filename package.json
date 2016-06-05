@@ -1,6 +1,6 @@
 {
   "name": "floox",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Simple global state handling for React, inspired by Flux",
   "main": "dist/index.js",
   "jsnext:main": "lib/index.js",
