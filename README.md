@@ -20,7 +20,7 @@ Floox lets you manage the global state of your React app, while also protecting 
     - [`combineState(currentState, partialState)` (optional)](#combinestatecurrentstate-partialstate-optional)
     - [Other properties](#other-properties)
   - [`Floox` instance](#floox-instance)
-    - [`get state`](#get-state)
+    - [`state`](#state)
     - [`setState(partialState, [callback])`](#setstatepartialstate-callback)
     - [`batch(changes, [callback])`](#batchchanges-callback)
     - [`addChangeListener(listener)` and `removeChangeListener(listener)`](#addchangelistenerlistener-and-removechangelistenerlistener)
@@ -142,9 +142,11 @@ As long as it is an own enumerable property of the config object and not one of 
 
 The constructed Floox store has these properties:
 
-#### `get state`
+#### `state`
 
-The `state` has only a getter to prevent setting the state without using the `setState` method. Inside actions you can use `this.state`.
+This is the current state of the floox store. You will be able to access it in the actions defined in the Floox store by using `this.state`.
+
+_`floox.state` is a getter, meaning you can only get the value of `floox.state`, but not assign to it._
 
 #### `setState(partialState, [callback])`
 
