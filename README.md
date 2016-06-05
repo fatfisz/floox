@@ -25,7 +25,8 @@ Floox lets you manage the global state of your React app, while also protecting 
     - [`batch(changes, [callback])`](#batchchanges-callback)
     - [`addChangeListener(listener)` and `removeChangeListener(listener)`](#addchangelistenerlistener-and-removechangelistenerlistener)
   - [`FlooxProvider`](#flooxprovider)
-  - [`connectFloox(Component, mapping)`](#connectflooxcomponent-mapping)
+  - [`connectFloox(Component, mapping, [options])`](#connectflooxcomponent-mapping-options)
+    - [`shouldComponentUpdate(nextProps, nextState)`](#shouldcomponentupdatenextprops-nextstate)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -184,9 +185,10 @@ A component that needs only a "floox" prop and a child.
 The value passed as a "floox" prop should be an instance of the `Floox` class.
 If none or more than one children are passed, an error will be thrown.
 
-### `connectFloox(Component, mapping)`
+### `connectFloox(Component, mapping, [options])`
 
-This function wraps the passed `Component` with another component, which connects to the store using `addChangeListener` and `removeChangeListener`.
+This function connects `Component` to the Floox store.
+It does so by wrapping `Component` with another component that uses the Floox store passed to `FlooxProvider`.
 
 The `mapping` argument describes which store properties to pass as props to `Component` and how should they be named.
 It should be an object with properties being either `true` or strings.
@@ -198,7 +200,7 @@ connectFloox(Component, {
 });
 ```
 This will fetch the `sameValue` and `differentKey` properties from the store state and pass them to `Component` as `sameValue` and `differentValue` props.
-The mapping doesn't influence the actual values of the properties!
+The mapping doesn't change the actual values of the properties!
 
 The `floox` mapping property is a special case - it will always point to the store itself.
 This allows calling actions from components.
@@ -207,6 +209,41 @@ The props passed to the component wrapper are passed to the component itself.
 Be careful, as they are overwritten by the store props!
 
 Almost everything you need to know about how to use this (apart from the renamed properties) is contained in the [first example](#basic-usage).
+
+Also the following option is supported:
+
+#### `shouldComponentUpdate(nextProps, nextState)`
+
+This method is similar to the React's own `shouldComponentUpdate`.
+It should return `true`/`false` depending on whether you want to have the component updated after either the props or the Floox store state change.
+
+You can access the current props passed to the wrapper element through `this.props`, and the current mapped state through `this.state`.
+
+Here's an example usage:
+
+```js
+function Component({ prop, flooxProp }) {
+  return (
+    <pre>
+      prop: {prop}
+      flooxProp: {flooxProp}
+    </pre>
+  );
+}
+
+const ComponentWrapper = connectFloox(Component, {
+  flooxProp: true,
+}, {
+  shouldComponentUpdate(nextProps, nextState) {
+    return (
+      nextProps.prop !== this.props.prop ||
+      nextState.flooxProp !== this.state.flooxProp
+    );
+  },
+});
+```
+
+Now `ComponentWrapper` will be only rerendered if either `prop` or `flooxProp` change.
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style.
