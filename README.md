@@ -8,6 +8,27 @@
 
 Floox lets you manage the global state of your React app, while also protecting you from updates that are a direct result of other updates - to ensure the unidirectional data flow. All this while remaining simple and using methods similar to the ones used for managing component state.
 
+## Contents
+
+- [Getting started](#getting-started)
+- [Backstory](#backstory)
+- [Basic usage](#basic-usage)
+- [A bit more in-depth explanation](#a-bit-more-in-depth-explanation)
+- [API](#api)
+  - [`Floox`](#floox)
+    - [`getInitialState()` (required)](#getinitialstate-required)
+    - [`combineState(currentState, partialState)` (optional)](#combinestatecurrentstate-partialstate-optional)
+    - [Other properties](#other-properties)
+  - [`Floox` instance](#floox-instance)
+    - [`get state`](#get-state)
+    - [`setState(partialState, [callback])`](#setstatepartialstate-callback)
+    - [`batch(changes, [callback])`](#batchchanges-callback)
+    - [`addChangeListener(listener)` and `removeChangeListener(listener)`](#addchangelistenerlistener-and-removechangelistenerlistener)
+  - [`FlooxProvider`](#flooxprovider)
+    - [`connectFloox(Component, mapping)`](#connectflooxcomponent-mapping)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Getting Started
 
 Install the package with this command:
@@ -117,7 +138,7 @@ This is a little bit less restrictive than what's happening in React's own `setS
 
 As long as it is an own enumerable property of the config object and not one of the two methods above, it is assigned to the store instance too. That's where you will be declaring your actions.
 
----
+### Floox instance
 
 The constructed Floox store has these properties:
 
