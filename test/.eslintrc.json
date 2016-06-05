@@ -1,0 +1,13 @@
+{
+  "env": {
+    "mocha": true
+  },
+  "rules": {
+    "global-require": 0,
+
+    "prefer-spread": 0,
+
+    "react/no-multi-comp": 0,
+    "react/prefer-stateless-function": 0
+  }
+}

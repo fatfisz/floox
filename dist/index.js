@@ -316,6 +316,7 @@ var FlooxProvider = React.createClass({
   displayName: 'FlooxProvider',
 
   propTypes: {
+    children: React.PropTypes.element.isRequired,
     floox: React.PropTypes.instanceOf(Floox).isRequired
   },
 

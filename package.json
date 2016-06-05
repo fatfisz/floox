@@ -31,6 +31,8 @@
     "babel-plugin-object-assign": "^1.2.1",
     "eslint": "~2.9.0",
     "eslint-config-fatfisz": "~2.9.0",
+    "eslint-config-fatfisz-react": "^5.1.1",
+    "eslint-plugin-react": "^5.1.1",
     "grunt": "^1.0.1",
     "grunt-babel": "^5.0.3",
     "grunt-cli": "^1.2.0",

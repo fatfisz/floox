@@ -1,6 +1,9 @@
 {
   "root": true,
-  "extends": "fatfisz",
+  "extends": [
+    "fatfisz",
+    "fatfisz-react"
+  ],
   "parserOptions": {
     "ecmaVersion": 6,
     "sourceType": "script",
