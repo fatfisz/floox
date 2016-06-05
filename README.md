@@ -26,7 +26,7 @@ Floox lets you manage the global state of your React app, while also protecting 
     - [`addChangeListener(listener)` and `removeChangeListener(listener)`](#addchangelistenerlistener-and-removechangelistenerlistener)
   - [`FlooxProvider`](#flooxprovider)
   - [`connectFloox(Component, mapping, [options])`](#connectflooxcomponent-mapping-options)
-    - [`shouldComponentUpdate(nextProps, nextState)`](#shouldcomponentupdatenextprops-nextstate)
+    - [`shouldComponentUpdate(nextProps, nextState, nextContext)`](#shouldcomponentupdatenextprops-nextstate-nextcontext)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -212,7 +212,7 @@ Almost everything you need to know about how to use this (apart from the renamed
 
 Also the following option is supported:
 
-#### `shouldComponentUpdate(nextProps, nextState)`
+#### `shouldComponentUpdate(nextProps, nextState, nextContext)`
 
 This method is similar to the React's own `shouldComponentUpdate`.
 It should return `true`/`false` depending on whether you want to have the component updated after either the props or the Floox store state change.

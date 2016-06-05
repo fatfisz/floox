@@ -350,7 +350,7 @@ describe('connectFloox function', () => {
 
           should(shouldComponentUpdate).be.calledOnce();
           should(shouldComponentUpdate).be.calledOn(connector);
-          should(shouldComponentUpdate).be.calledWithExactly({ prop: 1 }, { flooxProp: 2 });
+          should(shouldComponentUpdate).be.calledWithExactly({ prop: 1 }, { flooxProp: 2 }, { floox });
         });
 
         it('should call `shouldComponentUpdate` after the connector element props have changed', () => {
@@ -371,7 +371,7 @@ describe('connectFloox function', () => {
           should(connector).be.equal(connector2);
           should(shouldComponentUpdate).be.calledOnce();
           should(shouldComponentUpdate).be.calledOn(connector);
-          should(shouldComponentUpdate).be.calledWithExactly({ prop: 2 }, { flooxProp: 1 });
+          should(shouldComponentUpdate).be.calledWithExactly({ prop: 2 }, { flooxProp: 1 }, { floox });
         });
 
         it('should not render when `shouldComponentUpdate` returns `false`', () => {

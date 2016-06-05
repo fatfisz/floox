@@ -244,9 +244,9 @@ function connectFloox(Component, mapping) {
     throw new Error('Expected mapping to be an object.');
   }
 
-  var _shouldComponentUpdate = options.shouldComponentUpdate;
+  var shouldComponentUpdate = options.shouldComponentUpdate;
 
-  if (process.env.NODE_ENV !== 'production' && typeof _shouldComponentUpdate !== 'undefined' && typeof _shouldComponentUpdate !== 'function') {
+  if (process.env.NODE_ENV !== 'production' && typeof shouldComponentUpdate !== 'undefined' && typeof shouldComponentUpdate !== 'function') {
     throw new Error('Expected `shouldComponentUpdate` to be a function.');
   }
 
@@ -289,13 +289,7 @@ function connectFloox(Component, mapping) {
       this.context.floox.addChangeListener(this.flooxUpdate);
     },
 
-    shouldComponentUpdate: function shouldComponentUpdate(nextProps, nextState) {
-      if (!_shouldComponentUpdate) {
-        return true;
-      }
-
-      return _shouldComponentUpdate.call(this, nextProps, nextState);
-    },
+    shouldComponentUpdate: shouldComponentUpdate,
 
     componentWillUnmount: function componentWillUnmount() {
       this.context.floox.removeChangeListener(this.flooxUpdate);
