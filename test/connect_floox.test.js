@@ -7,6 +7,45 @@ const sinon = require('sinon');
 const reactVersions = require('./react/versions');
 
 
+function getFlooxProvider(React, Floox, floox) {
+  return React.createClass({
+    propTypes: {
+      children: React.PropTypes.element.isRequired,
+    },
+
+    childContextTypes: {
+      floox: React.PropTypes.instanceOf(Floox).isRequired,
+    },
+
+    getChildContext() {
+      return { floox };
+    },
+
+    render() {
+      return this.props.children;
+    },
+  });
+}
+
+function buildAndRender(React, FlooxProvider, Component) {
+  const element = React.createElement(Component, {});
+  const provider = React.createElement(FlooxProvider, {}, element);
+  return React.addons.TestUtils.renderIntoDocument(provider);
+}
+
+function getConnector(React, tree) {
+  const connector = React.addons.TestUtils.findAllInRenderedTree(
+    tree,
+    (component) => component.flooxUpdate
+  )[0];
+
+  should(connector).be.ok();
+
+  sinon.spy(connector, 'render');
+
+  return connector;
+}
+
 describe('connectFloox function', () => {
   reactVersions.forEach((version) => {
     describe(`React v. ${version}`, () => {
@@ -219,36 +258,15 @@ describe('connectFloox function', () => {
               };
             },
           });
-          const FlooxProvider = React.createClass({
-            childContextTypes: {
-              floox: React.PropTypes.instanceOf(Floox).isRequired,
-            },
 
-            getChildContext() {
-              return {
-                floox,
-              };
-            },
-
-            render() {
-              return this.props.children;
-            },
-          });
+          const FlooxProvider = getFlooxProvider(React, Floox, floox);
           const Component = connectFloox('test', {
             mappedString: true,
             mappedObject: true,
             floox: true,
           });
-          const element = React.createElement(Component, {});
-          const provider = React.createElement(FlooxProvider, {}, element);
-          const tree = React.addons.TestUtils.renderIntoDocument(provider);
-          connector = React.addons.TestUtils.findAllInRenderedTree(tree, (component) =>
-            component.flooxUpdate
-          )[0];
-
-          should(connector).be.ok();
-
-          sinon.spy(connector, 'render');
+          const tree = buildAndRender(React, FlooxProvider, Component);
+          connector = getConnector(React, tree);
         });
 
         it('should update even when nothing changes', () => {
@@ -303,26 +321,12 @@ describe('connectFloox function', () => {
         let listener;
         let init;
 
-        const FlooxProvider = React.createClass({
-          childContextTypes: {
-            floox: React.PropTypes.instanceOf(Floox).isRequired,
+        const FlooxProvider = getFlooxProvider(React, Floox, {
+          addChangeListener(_listener) {
+            listener = _listener;
           },
-
-          getChildContext() {
-            return {
-              floox: {
-                addChangeListener(_listener) {
-                  listener = _listener;
-                },
-                removeChangeListener() {
-                  listener = null;
-                },
-              },
-            };
-          },
-
-          render() {
-            return this.props.children;
+          removeChangeListener() {
+            listener = null;
           },
         });
 
@@ -364,10 +368,7 @@ describe('connectFloox function', () => {
           },
         }), {});
 
-        const a = React.createElement(A);
-        const provider = React.createElement(FlooxProvider, {}, a);
-
-        React.addons.TestUtils.renderIntoDocument(provider);
+        buildAndRender(React, FlooxProvider, A);
 
         init();
       });
@@ -389,19 +390,7 @@ describe('connectFloox function', () => {
           },
         });
 
-        const FlooxProvider = React.createClass({
-          childContextTypes: {
-            floox: React.PropTypes.instanceOf(Floox).isRequired,
-          },
-
-          getChildContext() {
-            return { floox };
-          },
-
-          render() {
-            return this.props.children;
-          },
-        });
+        const FlooxProvider = getFlooxProvider(React, Floox, floox);
 
         const A = connectFloox(React.createClass({
           getInitialState() {
@@ -431,10 +420,7 @@ describe('connectFloox function', () => {
           },
         }), { floox: true });
 
-        const a = React.createElement(A);
-        const provider = React.createElement(FlooxProvider, {}, a);
-
-        React.addons.TestUtils.renderIntoDocument(provider);
+        buildAndRender(React, FlooxProvider, A);
 
         init();
       });
