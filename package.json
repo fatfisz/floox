@@ -28,7 +28,6 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "babel-plugin-object-assign": "^1.2.1",
     "eslint": "~2.9.0",
     "eslint-config-fatfisz": "~2.9.0",
     "eslint-config-fatfisz-react": "^5.1.1",
@@ -45,7 +44,6 @@
     "mocha": "^2.5.3",
     "mockery": "^1.7.0",
     "react": "^15.1.0",
-    "react-addons-test-utils": "^15.1.0",
     "rollup-plugin-babel": "^1.0.0",
     "should": "^9.0.0",
     "should-sinon": "0.0.5",
@@ -55,12 +53,7 @@
     "loose": [
       "es6.classes",
       "es6.destructuring",
-      "es6.forOf",
-      "es6.properties.computed",
       "es6.spread"
-    ],
-    "plugins": [
-      "object-assign"
     ]
   }
 }

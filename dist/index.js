@@ -114,7 +114,7 @@ function defaultCombineState(currentState, partialState) {
     return partialState;
   }
 
-  return babelHelpers._extends(currentState, partialState);
+  return Object.assign(currentState, partialState);
 }
 
 var privateData = new WeakMap();
@@ -147,7 +147,7 @@ var Floox = (function () {
       callbacks: []
     });
 
-    babelHelpers._extends(this, rest);
+    Object.assign(this, rest);
   }
 
   Floox.prototype.setState = function setState(partialState, callback) {
